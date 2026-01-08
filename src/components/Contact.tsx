@@ -28,18 +28,9 @@ const Contact = () => {
     e.preventDefault();
     setStatus('sending');
 
-    // EmailJS configuration (you'll need to set this up)
-    // For now, we'll simulate sending
+    
     try {
-      // Uncomment when you set up EmailJS:
-      // await emailjs.sendForm(
-      //   'YOUR_SERVICE_ID',
-      //   'YOUR_TEMPLATE_ID',
-      //   formRef.current!,
-      //   'YOUR_PUBLIC_KEY'
-      // );
       
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       setStatus('success');
@@ -105,7 +96,7 @@ const Contact = () => {
         </motion.p>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Contact Form */}
+          {}
           <motion.div
             className="glass-card p-8"
             initial={{ opacity: 0, x: -50 }}
@@ -204,7 +195,7 @@ const Contact = () => {
             </form>
           </motion.div>
 
-          {/* Contact Info */}
+          {}
           <motion.div
             className="space-y-6"
             initial={{ opacity: 0, x: 50 }}
@@ -277,7 +268,7 @@ const Contact = () => {
           </motion.div>
         </div>
 
-        {/* Footer */}
+        {}
         <motion.div
           className="mt-16 text-center text-gray-400"
           initial={{ opacity: 0 }}

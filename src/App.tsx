@@ -15,10 +15,10 @@ function App() {
 
   return (
     <div className="relative min-h-screen bg-[#0a0e27] text-white overflow-x-hidden">
-      {/* Particles Background */}
+      {}
       <ParticlesBackground />
 
-      {/* Main Content */}
+      {}
       <div className="relative z-20">
         <Navbar />
         <Hero />

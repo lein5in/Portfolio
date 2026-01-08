@@ -10,7 +10,7 @@ const ParticlesBackground = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Set canvas size
+    
     const setCanvasSize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -18,7 +18,7 @@ const ParticlesBackground = () => {
     setCanvasSize();
     window.addEventListener('resize', setCanvasSize);
 
-    // Particle class
+    
     class Particle {
       x: number;
       y: number;
@@ -42,7 +42,7 @@ const ParticlesBackground = () => {
         this.x += this.speedX;
         this.y += this.speedY;
 
-        // Wrap around screen
+        
         if (this.x > canvasWidth) this.x = 0;
         if (this.x < 0) this.x = canvasWidth;
         if (this.y > canvasHeight) this.y = 0;
@@ -57,7 +57,7 @@ const ParticlesBackground = () => {
       }
     }
 
-    // Create particles
+    
     const particles: Particle[] = [];
     const particleCount = 100;
 
@@ -65,7 +65,7 @@ const ParticlesBackground = () => {
       particles.push(new Particle(canvas.width, canvas.height));
     }
 
-    // Mouse interaction
+    
     let mouse = { x: 0, y: 0, radius: 150 };
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -75,7 +75,7 @@ const ParticlesBackground = () => {
 
     canvas.addEventListener('mousemove', handleMouseMove);
 
-    // Animation loop
+    
     const animate = () => {
       ctx.fillStyle = 'rgba(10, 14, 39, 0.05)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -84,7 +84,7 @@ const ParticlesBackground = () => {
         particle.update(canvas.width, canvas.height);
         particle.draw(ctx);
 
-        // Draw connections
+        
         particles.forEach((particle2, j) => {
           if (i === j) return;
           
@@ -102,7 +102,7 @@ const ParticlesBackground = () => {
           }
         });
 
-        // Mouse interaction - repel particles
+        
         const dx = mouse.x - particle.x;
         const dy = mouse.y - particle.y;
         const distance = Math.sqrt(dx * dx + dy * dy);

@@ -44,7 +44,7 @@ const Navbar = () => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
-          {/* Logo */}
+          {}
           <motion.a
             href="#"
             className="text-2xl font-bold gradient-cyber"
@@ -54,7 +54,7 @@ const Navbar = () => {
             HIT
           </motion.a>
 
-          {/* Desktop Menu */}
+          {}
           <div className="hidden md:flex space-x-8">
             {navItems.map((item, index) => (
               <motion.a
@@ -73,7 +73,7 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* Mobile Menu Button */}
+          {}
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
@@ -84,7 +84,7 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {}
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}

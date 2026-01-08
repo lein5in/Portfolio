@@ -24,7 +24,7 @@ const About = () => {
   const [currentQuote, setCurrentQuote] = useState(quotes[0]);
 
   useEffect(() => {
-    // Select random quote on mount
+    
     const randomIndex = Math.floor(Math.random() * quotes.length);
     setCurrentQuote(quotes[randomIndex]);
   }, []);
@@ -47,7 +47,7 @@ const About = () => {
           animate={isInView ? { opacity: 1, scale: 1 } : {}}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          {/* Philosophical Quote */}
+          {}
           <motion.div
             className="mb-8 p-6 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 rounded-lg border border-cyan-500/20"
             initial={{ opacity: 0, y: -20 }}

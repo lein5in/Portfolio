@@ -135,7 +135,7 @@ const Skills = () => {
           ))}
         </div>
 
-        {/* Soft Skills */}
+        {}
         <motion.div
           className="mt-12 glass-card p-8"
           initial={{ opacity: 0, y: 30 }}
