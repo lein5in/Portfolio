@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { useInView } from 'framer-motion';
 import { useRef } from 'react';
-import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
+import { FaGithub } from 'react-icons/fa';
 
 const Projects = () => {
   const ref = useRef(null);
@@ -19,7 +19,7 @@ const Projects = () => {
         'Automatic tuning detection',
         'Voice/instrument separation with Demucs'
       ],
-      github: 'https://github.com/lein5in/fretify',
+      github: 'https://github.com/lein5in/AI-guitar-tabs-generator',
       status: 'In Development',
       gradient: 'from-cyan-500 to-blue-500'
     },
@@ -35,7 +35,7 @@ const Projects = () => {
         'Sales tracking and reporting',
         '20+ automated JUnit tests'
       ],
-      github: 'https://github.com/lein5in/utaste',
+      github: 'https://github.com/uOttawa-2025-2026-seg2505-projet/Groupe-19-repo',
       status: 'Completed',
       gradient: 'from-purple-500 to-pink-500'
     }
@@ -114,18 +114,6 @@ const Projects = () => {
                 >
                   <FaGithub /> View Code
                 </motion.a>
-                {project.status === 'Completed' && (
-                  <motion.a
-                    href={project.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <FaExternalLinkAlt /> Live Demo
-                  </motion.a>
-                )}
               </div>
             </motion.div>
           ))}

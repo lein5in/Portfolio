@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { useInView } from 'framer-motion';
 import { useRef, useState } from 'react';
 import { FaGithub, FaLinkedin, FaEnvelope, FaMapMarkerAlt, FaPaperPlane } from 'react-icons/fa';
-
+import emailjs from '@emailjs/browser';
 
 const Contact = () => {
   const ref = useRef(null);
@@ -10,8 +10,8 @@ const Contact = () => {
   const isInView = useInView(ref, { once: true, amount: 0.3 });
   
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
+    from_name: '',
+    from_email: '',
     message: ''
   });
   
@@ -28,16 +28,25 @@ const Contact = () => {
     e.preventDefault();
     setStatus('sending');
 
-    
     try {
-      
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // EmailJS configuration with your credentials
+      await emailjs.send(
+        'service_7q5hmds',      // Your Service ID
+        'template_p1nnvb6',     // Your Template ID
+        {
+          from_name: formData.from_name,
+          from_email: formData.from_email,
+          message: formData.message,
+        },
+        'h8rxQkQDRLjyLvEX4'     // Your Public Key
+      );
       
       setStatus('success');
-      setFormData({ name: '', email: '', message: '' });
+      setFormData({ from_name: '', from_email: '', message: '' });
       
       setTimeout(() => setStatus('idle'), 5000);
     } catch (error) {
+      console.error('EmailJS Error:', error);
       setStatus('error');
       setTimeout(() => setStatus('idle'), 5000);
     }
@@ -96,7 +105,7 @@ const Contact = () => {
         </motion.p>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {}
+          {/* Contact Form */}
           <motion.div
             className="glass-card p-8"
             initial={{ opacity: 0, x: -50 }}
@@ -107,14 +116,14 @@ const Contact = () => {
             
             <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="from_name" className="block text-sm font-medium text-gray-300 mb-2">
                   Your Name
                 </label>
                 <input
                   type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
+                  id="from_name"
+                  name="from_name"
+                  value={formData.from_name}
                   onChange={handleChange}
                   required
                   className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-cyan-500 text-white transition-all"
@@ -123,14 +132,14 @@ const Contact = () => {
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="from_email" className="block text-sm font-medium text-gray-300 mb-2">
                   Your Email
                 </label>
                 <input
                   type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
+                  id="from_email"
+                  name="from_email"
+                  value={formData.from_email}
                   onChange={handleChange}
                   required
                   className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-cyan-500 text-white transition-all"
@@ -179,7 +188,7 @@ const Contact = () => {
                   animate={{ opacity: 1, y: 0 }}
                   className="text-green-400 text-center"
                 >
-                  ✓ Message sent successfully!
+                  ✓ Message sent successfully! I'll get back to you soon.
                 </motion.p>
               )}
 
@@ -189,13 +198,13 @@ const Contact = () => {
                   animate={{ opacity: 1, y: 0 }}
                   className="text-red-400 text-center"
                 >
-                  ✗ Failed to send message. Please try again.
+                  ✗ Failed to send message. Please try again or email me directly.
                 </motion.p>
               )}
             </form>
           </motion.div>
 
-          {}
+          {/* Contact Info */}
           <motion.div
             className="space-y-6"
             initial={{ opacity: 0, x: 50 }}
@@ -257,7 +266,7 @@ const Contact = () => {
               </p>
               <motion.a
                 href="/Habib Ibraheem.cv.pdf"
-                download="Habib_Ibrahim_Toure_CV.pdf"
+                download="Ibrahim_habib_Toure_cv.pdf"
                 className="inline-block btn-secondary"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -268,7 +277,7 @@ const Contact = () => {
           </motion.div>
         </div>
 
-        {}
+        {/* Footer */}
         <motion.div
           className="mt-16 text-center text-gray-400"
           initial={{ opacity: 0 }}
