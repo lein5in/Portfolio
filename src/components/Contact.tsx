@@ -265,7 +265,7 @@ const Contact = () => {
                 Currently seeking <span className="gradient-cyber font-semibold">Co-op opportunities</span> for Summer 2026
               </p>
               <motion.a
-                href="/Habib Ibraheem.cv.pdf"
+                href="/Ibraheem_habib_toure.cv_en.pdf"
                 download="Ibrahim_habib_Toure_cv.pdf"
                 className="inline-block btn-secondary"
                 whileHover={{ scale: 1.05 }}
