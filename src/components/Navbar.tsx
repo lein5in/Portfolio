@@ -1,18 +1,20 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaBars, FaTimes } from 'react-icons/fa';
-
-const navItems = [
-  { name: 'About',      href: '#about' },
-  { name: 'Projects',   href: '#projects' },
-  { name: 'Skills',     href: '#skills' },
-  { name: 'Experience', href: '#experience' },
-  { name: 'Contact',    href: '#contact' },
-];
+import { useLanguage } from '../context/LanguageContext';
 
 const Navbar = () => {
   const [isOpen, setIsOpen]     = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { lang, toggle, t }     = useLanguage();
+
+  const navItems = [
+    { name: t('About', 'À propos'),       href: '#about' },
+    { name: t('Projects', 'Projets'),     href: '#projects' },
+    { name: t('Skills', 'Compétences'),   href: '#skills' },
+    { name: t('Experience', 'Expérience'), href: '#experience' },
+    { name: t('Contact', 'Contact'),      href: '#contact' },
+  ];
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -25,6 +27,46 @@ const Navbar = () => {
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
     setIsOpen(false);
   };
+
+  const LangToggle = () => (
+    <button
+      onClick={toggle}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        background: 'var(--bg-2)',
+        border: '0.5px solid var(--border-md)',
+        borderRadius: '3px',
+        padding: '0',
+        cursor: 'pointer',
+        overflow: 'hidden',
+        height: '28px',
+        flexShrink: 0,
+      }}
+    >
+      {(['en', 'fr'] as const).map((l) => (
+        <span
+          key={l}
+          style={{
+            fontFamily: "'DM Mono', monospace",
+            fontSize: '10px',
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            padding: '0 10px',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            background: lang === l ? 'var(--accent)' : 'transparent',
+            color: lang === l ? '#0d0d0d' : 'var(--text-faint)',
+            transition: 'background 0.2s, color 0.2s',
+            fontWeight: lang === l ? 500 : 400,
+          }}
+        >
+          {l.toUpperCase()}
+        </span>
+      ))}
+    </button>
+  );
 
   return (
     <motion.nav
@@ -46,6 +88,7 @@ const Navbar = () => {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         height: '64px',
       }}>
+
         {/* Logo */}
         <a
           href="#"
@@ -62,11 +105,11 @@ const Navbar = () => {
           H.I.T.
         </a>
 
-        {/* Desktop links */}
-        <div style={{ display: 'flex', gap: '32px' }} className="nav-desktop">
+        {/* Desktop: nav links + toggle */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '28px' }} className="nav-desktop">
           {navItems.map((item, i) => (
             <motion.a
-              key={item.name}
+              key={item.href}
               href={item.href}
               onClick={e => scrollTo(e, item.href)}
               initial={{ opacity: 0, y: -8 }}
@@ -85,16 +128,19 @@ const Navbar = () => {
               {item.name}
             </motion.a>
           ))}
+          <LangToggle />
         </div>
 
-        {/* Mobile burger */}
-        <button
-          className="nav-burger"
-          onClick={() => setIsOpen(!isOpen)}
-          style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '18px', display: 'none' }}
-        >
-          {isOpen ? <FaTimes /> : <FaBars />}
-        </button>
+        {/* Mobile: toggle + burger */}
+        <div style={{ display: 'none', alignItems: 'center', gap: '12px' }} className="nav-mobile">
+          <LangToggle />
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '18px' }}
+          >
+            {isOpen ? <FaTimes /> : <FaBars />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile dropdown */}
@@ -110,12 +156,11 @@ const Navbar = () => {
               padding: '16px 20px 24px',
               display: 'flex',
               flexDirection: 'column',
-              gap: '0',
             }}
           >
             {navItems.map(item => (
               <a
-                key={item.name}
+                key={item.href}
                 href={item.href}
                 onClick={e => scrollTo(e, item.href)}
                 style={{
@@ -137,7 +182,7 @@ const Navbar = () => {
       <style>{`
         @media (max-width: 768px) {
           .nav-desktop { display: none !important; }
-          .nav-burger  { display: block !important; }
+          .nav-mobile  { display: flex !important; }
         }
       `}</style>
     </motion.nav>
