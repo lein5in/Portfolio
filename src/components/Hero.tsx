@@ -1,152 +1,306 @@
 import { motion } from 'framer-motion';
-import { FaGithub, FaLinkedin, FaEnvelope } from 'react-icons/fa';
+import { FaGithub, FaLinkedin, FaEnvelope, FaArrowDown } from 'react-icons/fa';
 import { useEffect, useState } from 'react';
 
+const roles = [
+  'Software Developer',
+  'AI/ML Enthusiast',
+  'CS Student @ uOttawa',
+  'Full-Stack Builder',
+];
+
 const Hero = () => {
-  const [displayText, setDisplayText] = useState('');
-  const fullText = 'AI/ML Enthusiast | Software Developer | Computer Science Student';
-  
+  const [roleIndex, setRoleIndex] = useState(0);
+  const [displayed, setDisplayed] = useState('');
+  const [deleting, setDeleting] = useState(false);
+
   useEffect(() => {
-    let index = 0;
-    const timer = setInterval(() => {
-      if (index <= fullText.length) {
-        setDisplayText(fullText.slice(0, index));
-        index++;
-      } else {
-        clearInterval(timer);
-      }
-    }, 50);
-    
-    return () => clearInterval(timer);
-  }, []);
+    const current = roles[roleIndex];
+    let timeout: ReturnType<typeof setTimeout>;
 
-  const scrollToContact = () => {
-    const element = document.querySelector('#contact');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+    if (!deleting && displayed.length < current.length) {
+      timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length + 1)), 55);
+    } else if (!deleting && displayed.length === current.length) {
+      timeout = setTimeout(() => setDeleting(true), 2200);
+    } else if (deleting && displayed.length > 0) {
+      timeout = setTimeout(() => setDisplayed(displayed.slice(0, -1)), 28);
+    } else if (deleting && displayed.length === 0) {
+      setDeleting(false);
+      setRoleIndex((i) => (i + 1) % roles.length);
     }
-  };
 
-  const scrollToProjects = () => {
-    const element = document.querySelector('#projects');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
+    return () => clearTimeout(timeout);
+  }, [displayed, deleting, roleIndex]);
+
+  const scrollTo = (id: string) => {
+    document.querySelector(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
-    <section className="min-h-screen flex items-center justify-center relative overflow-hidden pt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <motion.h1
-            className="text-5xl md:text-7xl font-bold mb-4 glow"
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            HABIB IBRAHIM TOURE
-          </motion.h1>
-
-          <motion.div
-            className="text-xl md:text-2xl text-gray-300 mb-8 h-8"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-          >
-            <span className="gradient-cyber font-semibold">{displayText}</span>
-            <span className="animate-pulse">|</span>
-          </motion.div>
-
-          <motion.p
-            className="text-lg text-gray-400 mb-12 max-w-2xl mx-auto"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1 }}
-          >
-            Second-year Computer Science student passionate about building intelligent systems 
-            and solving complex problems through code.
-          </motion.p>
-
-          <motion.div
-            className="flex flex-col sm:flex-row gap-4 justify-center mb-12"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.2 }}
-          >
-            <motion.button
-              onClick={scrollToProjects}
-              className="btn-primary"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              View Projects
-            </motion.button>
-            <motion.button
-              onClick={scrollToContact}
-              className="btn-secondary"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Contact Me
-            </motion.button>
-          </motion.div>
-
-          <motion.div
-            className="flex gap-6 justify-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.4 }}
-          >
-            <motion.a
-              href="https://github.com/lein5in"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-3xl text-gray-400 hover:text-white transition-colors"
-              whileHover={{ scale: 1.2, rotate: 5 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              <FaGithub />
-            </motion.a>
-            <motion.a
-              href="https://www.linkedin.com/in/habib-ibrahim-toure-440740389"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-3xl text-gray-400 hover:text-white transition-colors"
-              whileHover={{ scale: 1.2, rotate: 5 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              <FaLinkedin />
-            </motion.a>
-            <motion.a
-              href="mailto:htour018@uottawa.ca"
-              className="text-3xl text-gray-400 hover:text-white transition-colors"
-              whileHover={{ scale: 1.2, rotate: 5 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              <FaEnvelope />
-            </motion.a>
-          </motion.div>
-        </motion.div>
-      </div>
-
-      {}
+    <section
+      id="home"
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        position: 'relative',
+        padding: '80px 40px 0',
+        maxWidth: '1100px',
+        margin: '0 auto',
+      }}
+    >
+      {/* Two-column layout */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', width: '100%', alignItems: 'center' }}>
+      {/* Left column */}
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+      {/* Status badge */}
       <motion.div
-        className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
-        animate={{ y: [0, 10, 0] }}
-        transition={{ duration: 1.5, repeat: Infinity }}
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '32px' }}
       >
-        <div className="w-6 h-10 border-2 border-white rounded-full flex justify-center">
-          <motion.div
-            className="w-1 h-3 bg-white rounded-full mt-2"
-            animate={{ y: [0, 12, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          />
-        </div>
+        <span className="pulse-dot" />
+        <span
+          style={{
+            fontFamily: "'DM Mono', monospace",
+            fontSize: '11px',
+            color: 'var(--accent)',
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+          }}
+        >
+          Available — Summer 2026 Internship
+        </span>
       </motion.div>
+
+      {/* Name */}
+      <motion.h1
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: 0.1 }}
+        style={{
+          fontFamily: "'DM Serif Display', serif",
+          fontSize: 'clamp(52px, 8vw, 96px)',
+          lineHeight: 0.92,
+          color: 'var(--text)',
+          marginBottom: '8px',
+        }}
+      >
+        Habib<br />
+        <em style={{ color: 'var(--accent)', fontStyle: 'italic' }}>Ibrahim</em><br />
+        Touré
+      </motion.h1>
+
+      {/* Typing role */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        style={{
+          fontFamily: "'DM Mono', monospace",
+          fontSize: '14px',
+          color: 'var(--text-muted)',
+          marginTop: '24px',
+          letterSpacing: '0.04em',
+          height: '22px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '2px',
+        }}
+      >
+        {displayed}
+        <span
+          style={{
+            display: 'inline-block',
+            width: '1.5px',
+            height: '14px',
+            background: 'var(--accent)',
+            animation: 'pulse 1s ease-in-out infinite',
+          }}
+        />
+      </motion.div>
+
+      {/* Bio */}
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.75 }}
+        style={{
+          fontSize: '15px',
+          color: 'var(--text-muted)',
+          fontWeight: 300,
+          lineHeight: 1.75,
+          marginTop: '24px',
+          maxWidth: '460px',
+        }}
+      >
+        Second-year CS student at the University of Ottawa, building intelligent systems
+        at the intersection of AI and thoughtful software engineering. Bilingual
+        (EN/FR), passionate about tools that genuinely help people.
+      </motion.p>
+
+      {/* CTAs */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1 }}
+        style={{ display: 'flex', gap: '12px', marginTop: '36px', flexWrap: 'wrap' }}
+      >
+        <motion.button
+          className="btn-primary"
+          onClick={() => scrollTo('#projects')}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+        >
+          View Projects
+        </motion.button>
+        <motion.button
+          className="btn-secondary"
+          onClick={() => scrollTo('#contact')}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+        >
+          Contact Me
+        </motion.button>
+      </motion.div>
+
+      {/* Social links */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.2 }}
+        style={{ display: 'flex', gap: '20px', marginTop: '56px', alignItems: 'center' }}
+      >
+        {[
+          { href: 'https://github.com/lein5in', icon: <FaGithub size={18} /> },
+          { href: 'https://www.linkedin.com/in/habib-ibrahim-toure-440740389', icon: <FaLinkedin size={18} /> },
+          { href: 'mailto:htour018@uottawa.ca', icon: <FaEnvelope size={18} /> },
+        ].map(({ href, icon }) => (
+          <motion.a
+            key={href}
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: 'var(--text-muted)', transition: 'color 0.2s' }}
+            whileHover={{ color: 'var(--accent)', scale: 1.15 } as any}
+          >
+            {icon}
+          </motion.a>
+        ))}
+        <div style={{ flex: 1, height: '0.5px', background: 'var(--border)', maxWidth: '100px' }} />
+        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', color: 'var(--text-faint)', letterSpacing: '0.1em' }}>
+          Ottawa, ON
+        </span>
+      </motion.div>
+      </div>{/* end left column */}
+
+      {/* Right column — rotating quote */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1, delay: 0.8 }}
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', height: '340px' }}
+        className="hero-right"
+      >
+        {/* Outer rotating ring with quote text */}
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
+          style={{ position: 'absolute', width: '280px', height: '280px' }}
+        >
+          <svg viewBox="0 0 280 280" width="280" height="280">
+            <defs>
+              <path id="circlePath" d="M 140,140 m -110,0 a 110,110 0 1,1 220,0 a 110,110 0 1,1 -220,0" />
+            </defs>
+            <text fill="rgba(196,184,150,0.45)" fontSize="11" fontFamily="'DM Mono', monospace" letterSpacing="3.5">
+              <textPath href="#circlePath">
+                "The only way to do great work is to love what you do." — Steve Jobs ·
+              </textPath>
+            </text>
+          </svg>
+        </motion.div>
+
+        {/* Inner static decorative ring */}
+        <div style={{
+          width: '180px', height: '180px', borderRadius: '50%',
+          border: '0.5px solid rgba(196,184,150,0.12)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          position: 'relative',
+        }}>
+          {/* Center dot accent */}
+          <div style={{ textAlign: 'center' }}>
+            <div style={{
+              fontFamily: "'DM Serif Display', serif",
+              fontSize: '40px',
+              color: 'var(--accent)',
+              lineHeight: 1,
+              opacity: 0.6,
+            }}>H</div>
+            <div style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: '9px',
+              color: 'var(--text-faint)',
+              letterSpacing: '0.2em',
+              marginTop: '6px',
+            }}>I.T.</div>
+          </div>
+        </div>
+
+        {/* Small orbiting dot */}
+        <motion.div
+          animate={{ rotate: -360 }}
+          transition={{ duration: 12, repeat: Infinity, ease: 'linear' }}
+          style={{ position: 'absolute', width: '240px', height: '240px' }}
+        >
+          <div style={{
+            position: 'absolute',
+            top: '0', left: '50%',
+            transform: 'translateX(-50%)',
+            width: '5px', height: '5px',
+            borderRadius: '50%',
+            background: 'var(--accent)',
+            opacity: 0.7,
+          }} />
+        </motion.div>
+      </motion.div>
+      </div>{/* end two-column grid */}
+
+      {/* Scroll indicator */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.6 }}
+        style={{
+          position: 'absolute',
+          bottom: '32px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+        }}
+      >
+        <motion.button
+          onClick={() => scrollTo('#about')}
+          animate={{ y: [0, 6, 0] }}
+          transition={{ duration: 2, repeat: Infinity, repeatType: 'loop' }}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'var(--text-faint)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <FaArrowDown size={13} />
+        </motion.button>
+      </motion.div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .hero-right { display: none; }
+        }
+      `}</style>
     </section>
   );
 };

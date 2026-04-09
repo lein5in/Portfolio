@@ -1,173 +1,149 @@
-import { motion } from 'framer-motion';
-import { useInView } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
-import { 
-  FaPython, 
-  FaJava, 
-  FaReact, 
-  FaHtml5, 
-  FaCss3Alt, 
-  FaGitAlt, 
-  FaDatabase,
-  FaBrain,
-  FaShieldAlt
-} from 'react-icons/fa';
-import { 
-  SiTypescript, 
-  SiJavascript, 
-  SiTailwindcss,
-  SiScikitlearn,
-  SiPytorch,
-  SiMysql,
-  SiFastapi
-} from 'react-icons/si';
+
+const skillGroups = [
+  {
+    label: 'Languages',
+    skills: ['Python', 'Java', 'JavaScript', 'TypeScript', 'Assembly', 'HTML5', 'CSS3'],
+  },
+  {
+    label: 'Frameworks & Libraries',
+    skills: ['React', 'FastAPI', 'TailwindCSS', 'Scikit-Learn', 'PyTorch', 'Librosa', 'Basic-Pitch', 'NumPy'],
+  },
+  {
+    label: 'Databases & Tools',
+    skills: ['MySQL', 'SQLite', 'Git', 'Virtual Environments', 'OOP', 'REST APIs'],
+  },
+  {
+    label: 'Areas of Interest',
+    skills: ['Artificial Intelligence', 'Machine Learning', 'Cybersecurity', 'Full-Stack Development', 'Product Design'],
+  },
+];
+
+const softSkills = [
+  'Problem Solving',
+  'Teamwork',
+  'Communication',
+  'Critical Thinking',
+  'Adaptability',
+  'Bilingual (EN/FR)',
+];
 
 const Skills = () => {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.2 });
-
-  const skillCategories = [
-    {
-      title: 'Programming Languages',
-      icon: <FaPython className="text-4xl" />,
-      gradient: 'from-blue-500 to-cyan-500',
-      skills: [
-        { name: 'Python', icon: <FaPython />, color: 'text-blue-400' },
-        { name: 'Java', icon: <FaJava />, color: 'text-red-400' },
-        { name: 'JavaScript', icon: <SiJavascript />, color: 'text-yellow-400' },
-        { name: 'TypeScript', icon: <SiTypescript />, color: 'text-blue-500' },
-        { name: 'Assembly', icon: <FaDatabase />, color: 'text-gray-400' },
-      ]
-    },
-    {
-      title: 'Web Technologies',
-      icon: <FaReact className="text-4xl" />,
-      gradient: 'from-purple-500 to-pink-500',
-      skills: [
-        { name: 'React', icon: <FaReact />, color: 'text-cyan-400' },
-        { name: 'HTML5', icon: <FaHtml5 />, color: 'text-orange-500' },
-        { name: 'CSS3', icon: <FaCss3Alt />, color: 'text-blue-500' },
-        { name: 'TailwindCSS', icon: <SiTailwindcss />, color: 'text-cyan-400' },
-        { name: 'FastAPI', icon: <SiFastapi />, color: 'text-green-500' },
-      ]
-    },
-    {
-      title: 'AI/ML & Data',
-      icon: <FaBrain className="text-4xl" />,
-      gradient: 'from-green-500 to-teal-500',
-      skills: [
-        { name: 'Scikit-Learn', icon: <SiScikitlearn />, color: 'text-orange-400' },
-        { name: 'PyTorch', icon: <SiPytorch />, color: 'text-red-500' },
-        { name: 'Librosa', icon: <FaPython />, color: 'text-blue-400' },
-        { name: 'NumPy', icon: <FaPython />, color: 'text-blue-300' },
-        { name: 'Basic-Pitch', icon: <FaBrain />, color: 'text-purple-400' },
-      ]
-    },
-    {
-      title: 'Tools & Databases',
-      icon: <FaDatabase className="text-4xl" />,
-      gradient: 'from-yellow-500 to-orange-500',
-      skills: [
-        { name: 'MySQL', icon: <SiMysql />, color: 'text-blue-600' },
-        { name: 'Git', icon: <FaGitAlt />, color: 'text-orange-600' },
-        { name: 'OOP', icon: <FaJava />, color: 'text-red-400' },
-        { name: 'Virtual Env', icon: <FaPython />, color: 'text-green-400' },
-      ]
-    },
-    {
-      title: 'Interests & Focus',
-      icon: <FaShieldAlt className="text-4xl" />,
-      gradient: 'from-red-500 to-purple-500',
-      skills: [
-        { name: 'Artificial Intelligence', icon: <FaBrain />, color: 'text-purple-400' },
-        { name: 'Cybersecurity', icon: <FaShieldAlt />, color: 'text-red-400' },
-        { name: 'Machine Learning', icon: <SiPytorch />, color: 'text-orange-400' },
-        { name: 'Problem Solving', icon: <FaBrain />, color: 'text-cyan-400' },
-      ]
-    }
-  ];
+  const isInView = useInView(ref, { once: true, amount: 0.15 });
 
   return (
-    <section id="skills" className="py-20" ref={ref}>
-      <div className="max-w-6xl mx-auto px-4">
-        <motion.h2
-          className="text-4xl md:text-5xl font-bold text-center mb-16 gradient-text"
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-        >
-          Technical Skills
-        </motion.h2>
+    <section id="skills" ref={ref}>
+      <div className="section-container">
+        <div className="section-label">Skills</div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {skillCategories.map((category, categoryIndex) => (
+        {/* Technical skill groups */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', background: 'var(--border)', border: '0.5px solid var(--border)', borderRadius: '6px', overflow: 'hidden', marginBottom: '20px' }}>
+          {skillGroups.map((group, i) => (
             <motion.div
-              key={category.title}
-              className="glass-card p-6"
-              initial={{ opacity: 0, y: 50 }}
+              key={group.label}
+              initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: categoryIndex * 0.1 }}
-              whileHover={{ scale: 1.03 }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              style={{
+                background: 'var(--bg-2)',
+                padding: '28px 36px',
+                display: 'grid',
+                gridTemplateColumns: '180px 1fr',
+                gap: '24px',
+                alignItems: 'start',
+              }}
+              className="skill-row"
             >
-              <div className="flex items-center gap-3 mb-4">
-                <div className={`bg-gradient-to-r ${category.gradient} p-3 rounded-lg`}>
-                  {category.icon}
-                </div>
-                <h3 className="text-xl font-bold text-white">{category.title}</h3>
+              <div style={{
+                fontFamily: "'DM Mono', monospace",
+                fontSize: '11px',
+                color: 'var(--text-muted)',
+                letterSpacing: '0.16em',
+                textTransform: 'uppercase',
+                paddingTop: '4px',
+              }}>
+                {group.label}
               </div>
 
-              <div className="space-y-3">
-                {category.skills.map((skill, skillIndex) => (
-                  <motion.div
-                    key={skill.name}
-                    className="flex items-center gap-3 p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-all"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={isInView ? { opacity: 1, x: 0 } : {}}
-                    transition={{ duration: 0.3, delay: categoryIndex * 0.1 + skillIndex * 0.05 }}
-                    whileHover={{ x: 5 }}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                {group.skills.map(skill => (
+                  <motion.span
+                    key={skill}
+                    whileHover={{ borderColor: 'rgba(181,169,138,0.5)', color: 'var(--text)' } as any}
+                    style={{
+                      fontFamily: "'DM Mono', monospace",
+                      fontSize: '11px',
+                      color: 'var(--accent)',
+                      background: 'var(--accent-dim)',
+                      border: '0.5px solid rgba(181,169,138,0.2)',
+                      padding: '5px 12px',
+                      borderRadius: '2px',
+                      letterSpacing: '0.05em',
+                      cursor: 'default',
+                      transition: 'border-color 0.2s, color 0.2s',
+                    }}
                   >
-                    <span className={`text-xl ${skill.color}`}>{skill.icon}</span>
-                    <span className="text-gray-300">{skill.name}</span>
-                  </motion.div>
+                    {skill}
+                  </motion.span>
                 ))}
               </div>
             </motion.div>
           ))}
         </div>
 
-        {}
+        {/* Soft skills row */}
         <motion.div
-          className="mt-12 glass-card p-8"
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.5 }}
+          transition={{ duration: 0.5, delay: 0.45 }}
+          style={{
+            background: 'var(--bg-2)',
+            border: '0.5px solid var(--border)',
+            borderRadius: '6px',
+            padding: '28px 36px',
+            display: 'grid',
+            gridTemplateColumns: '180px 1fr',
+            gap: '24px',
+            alignItems: 'center',
+          }}
+          className="skill-row"
         >
-          <h3 className="text-2xl font-bold text-center mb-6 gradient-cyber">Soft Skills</h3>
-          <div className="flex flex-wrap justify-center gap-4">
-            {[
-              'Problem Solving',
-              'Teamwork',
-              'Communication',
-              'Critical Thinking',
-              'Adaptability',
-              'Time Management',
-              'Leadership',
-              'Creativity'
-            ].map((skill, index) => (
-              <motion.span
+          <div style={{
+            fontFamily: "'DM Mono', monospace",
+            fontSize: '10px',
+            color: 'var(--text-faint)',
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+          }}>
+            Soft Skills
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {softSkills.map(skill => (
+              <span
                 key={skill}
-                className="px-4 py-2 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-full border border-cyan-500/30 text-gray-300"
-                initial={{ opacity: 0, scale: 0 }}
-                animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                transition={{ duration: 0.3, delay: 0.6 + index * 0.05 }}
-                whileHover={{ scale: 1.1, borderColor: 'rgba(0, 212, 255, 0.5)' }}
+                style={{
+                  fontSize: '13px',
+                  color: 'var(--text-muted)',
+                  padding: '5px 14px',
+                  border: '0.5px solid var(--border-md)',
+                  borderRadius: '2px',
+                  fontWeight: 300,
+                }}
               >
                 {skill}
-              </motion.span>
+              </span>
             ))}
           </div>
         </motion.div>
       </div>
+
+      <style>{`
+        @media (max-width: 640px) {
+          .skill-row { grid-template-columns: 1fr !important; gap: 14px !important; padding: 20px !important; }
+        }
+      `}</style>
     </section>
   );
 };

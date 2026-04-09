@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import ParticlesBackground from './components/ParticlesBackground';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import About from './components/About';
@@ -10,24 +9,23 @@ import Contact from './components/Contact';
 
 function App() {
   useEffect(() => {
-    document.title = 'Habib Ibrahim Toure | Portfolio';
+    document.title = 'Habib Ibrahim Touré | Portfolio';
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-[#0a0e27] text-white overflow-x-hidden">
-      {}
-      <ParticlesBackground />
-
-      {}
-      <div className="relative z-20">
-        <Navbar />
-        <Hero />
-        <About />
-        <Projects />
-        <Skills />
-        <Experience />
-        <Contact />
-      </div>
+    <div style={{ position: 'relative', minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)', overflowX: 'hidden' }}>
+      <Navbar />
+      <Hero />
+      <div className="divider" />
+      <About />
+      <div className="divider" />
+      <Projects />
+      <div className="divider" />
+      <Skills />
+      <div className="divider" />
+      <Experience />
+      <div className="divider" />
+      <Contact />
     </div>
   );
 }

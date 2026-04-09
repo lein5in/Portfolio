@@ -1,292 +1,276 @@
-import { motion } from 'framer-motion';
-import { useInView } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 import { useRef, useState } from 'react';
 import { FaGithub, FaLinkedin, FaEnvelope, FaMapMarkerAlt, FaPaperPlane } from 'react-icons/fa';
 import emailjs from '@emailjs/browser';
 
+const contactLinks = [
+  {
+    label: 'Email',
+    value: 'htour018@uottawa.ca',
+    href: 'mailto:htour018@uottawa.ca',
+    icon: <FaEnvelope size={14} />,
+  },
+  {
+    label: 'GitHub',
+    value: 'github.com/lein5in',
+    href: 'https://github.com/lein5in',
+    icon: <FaGithub size={14} />,
+  },
+  {
+    label: 'LinkedIn',
+    value: 'habib-ibrahim-toure',
+    href: 'https://www.linkedin.com/in/habib-ibrahim-toure-440740389',
+    icon: <FaLinkedin size={14} />,
+  },
+  {
+    label: 'Location',
+    value: 'Ottawa, ON, Canada',
+    href: null,
+    icon: <FaMapMarkerAlt size={14} />,
+  },
+];
+
 const Contact = () => {
   const ref = useRef(null);
-  const formRef = useRef<HTMLFormElement>(null);
-  const isInView = useInView(ref, { once: true, amount: 0.3 });
-  
-  const [formData, setFormData] = useState({
-    from_name: '',
-    from_email: '',
-    message: ''
-  });
-  
+  const isInView = useInView(ref, { once: true, amount: 0.2 });
+
+  const [form, setForm] = useState({ from_name: '', from_email: '', message: '' });
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('sending');
-
     try {
-      // EmailJS configuration with your credentials
       await emailjs.send(
-        'service_7q5hmds',      // Your Service ID
-        'template_p1nnvb6',     // Your Template ID
-        {
-          from_name: formData.from_name,
-          from_email: formData.from_email,
-          message: formData.message,
-        },
-        'h8rxQkQDRLjyLvEX4'     // Your Public Key
+        'service_7q5hmds',
+        'template_p1nnvb6',
+        { from_name: form.from_name, from_email: form.from_email, message: form.message },
+        'h8rxQkQDRLjyLvEX4'
       );
-      
       setStatus('success');
-      setFormData({ from_name: '', from_email: '', message: '' });
-      
+      setForm({ from_name: '', from_email: '', message: '' });
       setTimeout(() => setStatus('idle'), 5000);
-    } catch (error) {
-      console.error('EmailJS Error:', error);
+    } catch {
       setStatus('error');
       setTimeout(() => setStatus('idle'), 5000);
     }
   };
 
-  const contactInfo = [
-    {
-      icon: <FaEnvelope />,
-      label: 'Email',
-      value: 'htour018@uottawa.ca',
-      link: 'mailto:htour018@uottawa.ca',
-      gradient: 'from-cyan-500 to-blue-500'
-    },
-    {
-      icon: <FaGithub />,
-      label: 'GitHub',
-      value: 'github.com/lein5in',
-      link: 'https://github.com/lein5in',
-      gradient: 'from-gray-500 to-gray-700'
-    },
-    {
-      icon: <FaLinkedin />,
-      label: 'LinkedIn',
-      value: 'linkedin.com/in/habib-toure',
-      link: 'https://www.linkedin.com/in/habib-ibrahim-toure-440740389',
-      gradient: 'from-blue-600 to-blue-800'
-    },
-    {
-      icon: <FaMapMarkerAlt />,
-      label: 'Location',
-      value: 'Ottawa, ON, Canada',
-      link: null,
-      gradient: 'from-red-500 to-pink-500'
-    }
-  ];
+  const labelStyle: React.CSSProperties = {
+    fontFamily: "'DM Mono', monospace",
+    fontSize: '10px',
+    color: 'var(--text-faint)',
+    letterSpacing: '0.18em',
+    textTransform: 'uppercase',
+    display: 'block',
+    marginBottom: '8px',
+  };
 
   return (
-    <section id="contact" className="py-20" ref={ref}>
-      <div className="max-w-6xl mx-auto px-4">
-        <motion.h2
-          className="text-4xl md:text-5xl font-bold text-center mb-4 gradient-text"
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-        >
-          Get In Touch
-        </motion.h2>
+    <section id="contact" ref={ref}>
+      <div className="section-container">
+        <div className="section-label">Contact</div>
 
-        <motion.p
-          className="text-center text-gray-400 mb-16 max-w-2xl mx-auto"
-          initial={{ opacity: 0 }}
-          animate={isInView ? { opacity: 1 } : {}}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision.
-        </motion.p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '48px', alignItems: 'start' }} className="contact-grid">
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Contact Form */}
+          {/* Left — form */}
           <motion.div
-            className="glass-card p-8"
-            initial={{ opacity: 0, x: -50 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.3 }}
+            initial={{ opacity: 0, y: 24 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.55 }}
           >
-            <h3 className="text-2xl font-bold mb-6 gradient-cyber">Send a Message</h3>
-            
-            <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
+            <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 'clamp(28px, 3.5vw, 40px)', lineHeight: 1.1, color: 'var(--text)', marginBottom: '12px' }}>
+              Let's work<br /><em style={{ color: 'var(--accent)', fontStyle: 'italic' }}>together.</em>
+            </h2>
+            <p style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: 300, lineHeight: 1.7, marginBottom: '36px' }}>
+              Open to co-op opportunities, interesting projects, and conversations about software.
+            </p>
+
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div>
-                <label htmlFor="from_name" className="block text-sm font-medium text-gray-300 mb-2">
-                  Your Name
-                </label>
+                <label style={labelStyle}>Your name</label>
                 <input
                   type="text"
-                  id="from_name"
                   name="from_name"
-                  value={formData.from_name}
+                  value={form.from_name}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-cyan-500 text-white transition-all"
                   placeholder="John Doe"
+                  className="field-input"
                 />
               </div>
 
               <div>
-                <label htmlFor="from_email" className="block text-sm font-medium text-gray-300 mb-2">
-                  Your Email
-                </label>
+                <label style={labelStyle}>Your email</label>
                 <input
                   type="email"
-                  id="from_email"
                   name="from_email"
-                  value={formData.from_email}
+                  value={form.from_email}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-cyan-500 text-white transition-all"
                   placeholder="john@example.com"
+                  className="field-input"
                 />
               </div>
 
               <div>
-                <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-2">
-                  Your Message
-                </label>
+                <label style={labelStyle}>Message</label>
                 <textarea
-                  id="message"
                   name="message"
-                  value={formData.message}
+                  value={form.message}
                   onChange={handleChange}
                   required
                   rows={5}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-cyan-500 text-white transition-all resize-none"
-                  placeholder="Your message here..."
+                  placeholder="Tell me about your project or opportunity..."
+                  className="field-input"
                 />
               </div>
 
               <motion.button
                 type="submit"
                 disabled={status === 'sending'}
-                className="w-full btn-primary flex items-center justify-center gap-2"
-                whileHover={{ scale: 1.02 }}
+                className="btn-primary"
+                whileHover={{ opacity: 0.85 }}
                 whileTap={{ scale: 0.98 }}
+                style={{ justifyContent: 'center', width: '100%' }}
               >
                 {status === 'sending' ? (
                   <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    <div style={{ width: '14px', height: '14px', border: '1.5px solid rgba(13,13,13,0.4)', borderTop: '1.5px solid #0d0d0d', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
                     Sending...
                   </>
                 ) : (
-                  <>
-                    <FaPaperPlane /> Send Message
-                  </>
+                  <><FaPaperPlane size={12} /> Send Message</>
                 )}
               </motion.button>
 
               {status === 'success' && (
                 <motion.p
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-green-400 text-center"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', color: '#7ecfa0', letterSpacing: '0.08em', textAlign: 'center' }}
                 >
-                  ✓ Message sent successfully! I'll get back to you soon.
+                  ✓ Message sent — I'll get back to you soon.
                 </motion.p>
               )}
-
               {status === 'error' && (
                 <motion.p
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-red-400 text-center"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', color: '#e27e7e', letterSpacing: '0.08em', textAlign: 'center' }}
                 >
-                  ✗ Failed to send message. Please try again or email me directly.
+                  ✗ Something went wrong — email me directly.
                 </motion.p>
               )}
             </form>
           </motion.div>
 
-          {/* Contact Info */}
+          {/* Right — info + CV download */}
           <motion.div
-            className="space-y-6"
-            initial={{ opacity: 0, x: 50 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.4 }}
+            initial={{ opacity: 0, y: 24 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.55, delay: 0.15 }}
+            style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
           >
-            <div className="glass-card p-8">
-              <h3 className="text-2xl font-bold mb-6 gradient-cyber">Contact Information</h3>
-              
-              <div className="space-y-4">
-                {contactInfo.map((info, index) => (
-                  <motion.div
-                    key={info.label}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={isInView ? { opacity: 1, y: 0 } : {}}
-                    transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
-                  >
-                    {info.link ? (
-                      <a
-                        href={info.link}
-                        target={info.link.startsWith('http') ? '_blank' : '_self'}
-                        rel="noopener noreferrer"
-                        className="flex items-start gap-4 p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-all group"
-                      >
-                        <div className={`text-2xl p-3 rounded-lg bg-gradient-to-r ${info.gradient} group-hover:scale-110 transition-transform`}>
-                          {info.icon}
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-400">{info.label}</p>
-                          <p className="text-white group-hover:text-cyan-400 transition-colors break-all">
-                            {info.value}
-                          </p>
-                        </div>
-                      </a>
-                    ) : (
-                      <div className="flex items-start gap-4 p-4 rounded-lg bg-white/5">
-                        <div className={`text-2xl p-3 rounded-lg bg-gradient-to-r ${info.gradient}`}>
-                          {info.icon}
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-400">{info.label}</p>
-                          <p className="text-white">{info.value}</p>
-                        </div>
+            {/* Contact links */}
+            <div style={{ background: 'var(--bg-2)', border: '0.5px solid var(--border)', borderRadius: '6px', overflow: 'hidden' }}>
+              {contactLinks.map((item, i) => (
+                <div
+                  key={item.label}
+                  style={{
+                    borderBottom: i < contactLinks.length - 1 ? '0.5px solid var(--border)' : 'none',
+                  }}
+                >
+                  {item.href ? (
+                    <a
+                      href={item.href}
+                      target={item.href.startsWith('http') ? '_blank' : '_self'}
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '14px',
+                        padding: '18px 24px',
+                        textDecoration: 'none',
+                        transition: 'background 0.2s',
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-3)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                    >
+                      <span style={{ color: 'var(--accent)', flexShrink: 0 }}>{item.icon}</span>
+                      <div>
+                        <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: 'var(--text-faint)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '2px' }}>{item.label}</div>
+                        <div style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: 300 }}>{item.value}</div>
                       </div>
-                    )}
-                  </motion.div>
-                ))}
-              </div>
+                    </a>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '18px 24px' }}>
+                      <span style={{ color: 'var(--text-faint)', flexShrink: 0 }}>{item.icon}</span>
+                      <div>
+                        <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '9px', color: 'var(--text-faint)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '2px' }}>{item.label}</div>
+                        <div style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: 300 }}>{item.value}</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
 
-            <motion.div
-              className="glass-card p-8 text-center"
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.9 }}
-            >
-              <p className="text-gray-300 mb-4">
-                Currently seeking <span className="gradient-cyber font-semibold">Co-op opportunities</span> for Summer 2026
+            {/* CV download */}
+            <div style={{ background: 'var(--bg-2)', border: '0.5px solid var(--border)', borderRadius: '6px', padding: '24px', textAlign: 'center' }}>
+              <p style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: 300, marginBottom: '16px', lineHeight: 1.6 }}>
+                Actively seeking a <span style={{ color: 'var(--text)', fontWeight: 400 }}>4-month Co-op</span> for Summer 2026
               </p>
               <motion.a
                 href="/Ibraheem_habib_toure.cv_en.pdf"
-                download="Ibrahim_habib_Toure_cv.pdf"
-                className="inline-block btn-secondary"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-secondary"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                style={{ width: '100%', justifyContent: 'center' }}
               >
                 Download Resume
               </motion.a>
-            </motion.div>
+            </div>
           </motion.div>
         </div>
 
         {/* Footer */}
         <motion.div
-          className="mt-16 text-center text-gray-400"
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
-          transition={{ duration: 0.6, delay: 1 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+          style={{
+            marginTop: '64px',
+            paddingTop: '28px',
+            borderTop: '0.5px solid var(--border)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '12px',
+          }}
         >
-          <p>© 2026 Habib Ibrahim Toure. Built with React, TypeScript & Framer Motion.</p>
+          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', color: 'var(--text-faint)', letterSpacing: '0.1em' }}>
+            © 2026 Habib Ibrahim Touré
+          </span>
+          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', color: 'var(--text-faint)', letterSpacing: '0.1em' }}>
+            Built with React · TypeScript · Framer Motion
+          </span>
         </motion.div>
       </div>
+
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (max-width: 768px) {
+          .contact-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </section>
   );
 };

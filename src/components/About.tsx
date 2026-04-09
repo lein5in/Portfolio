@@ -1,143 +1,197 @@
-import { motion } from 'framer-motion';
-import { useInView } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
+
+const quotes = [
+  { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+  { text: "The beautiful thing about learning is that nobody can take it away from you.", author: "B.B. King" },
+  { text: "Programs must be written for people to read, and only incidentally for machines to execute.", author: "Harold Abelson" },
+];
+
+const stats = [
+  { value: '3',    label: 'Languages spoken' },
+  { value: '3+',   label: 'Projects shipped' },
+  { value: '2026', label: 'Co-op ready' },
+];
 
 const About = () => {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.3 });
-
-  const quotes = [
-    {
-      text: "The only way to do great work is to love what you do.",
-      author: "Steve Jobs"
-    },
-    {
-      text: "The beautiful thing about learning is that nobody can take it away from you.",
-      author: "B.B. King"
-    },
-    {
-      text: "The question of whether a computer can think is no more interesting than the question of whether a submarine can swim.",
-      author: "Edsger Dijkstra"
-    }
-  ];
-
-  const [currentQuote, setCurrentQuote] = useState(quotes[0]);
+  const isInView = useInView(ref, { once: true, amount: 0.2 });
+  const [quote, setQuote] = useState(quotes[0]);
 
   useEffect(() => {
-    
-    const randomIndex = Math.floor(Math.random() * quotes.length);
-    setCurrentQuote(quotes[randomIndex]);
+    setQuote(quotes[Math.floor(Math.random() * quotes.length)]);
   }, []);
 
   return (
-    <section id="about" className="py-20" ref={ref}>
-      <div className="max-w-4xl mx-auto px-4">
-        <motion.h2
-          className="text-4xl md:text-5xl font-bold text-center mb-12 gradient-text"
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-        >
-          About Me
-        </motion.h2>
+    <section id="about" ref={ref}>
+      <div className="section-container">
+        <div className="section-label">About</div>
 
-        <motion.div
-          className="glass-card p-8 md:p-12"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={isInView ? { opacity: 1, scale: 1 } : {}}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          {}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '60px', alignItems: 'start' }} className="about-grid">
+
+          {/* Left — bio */}
           <motion.div
-            className="mb-8 p-6 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 rounded-lg border border-cyan-500/20"
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.3 }}
+            transition={{ duration: 0.6 }}
           >
-            <p className="text-lg italic text-gray-300 mb-2">
-              "{currentQuote.text}"
+            <h2 style={{
+              fontFamily: "'DM Serif Display', serif",
+              fontSize: 'clamp(28px, 4vw, 42px)',
+              lineHeight: 1.15,
+              color: 'var(--text)',
+              marginBottom: '28px',
+            }}>
+              Building things that<br />
+              <em style={{ color: 'var(--accent)', fontStyle: 'italic' }}>actually matter.</em>
+            </h2>
+
+            <p style={{ fontSize: '16px', color: 'var(--text-muted)', lineHeight: 1.85, fontWeight: 300, marginBottom: '18px' }}>
+              I'm a second-year Computer Science student (Co-op) at the University of Ottawa, driven by a
+              genuine curiosity about how software can solve real, everyday problems. Whether it's a web app,
+              a data pipeline, or a mobile tool — I care about building things that feel thoughtful and work well.
             </p>
-            <p className="text-right text-sm gradient-cyber font-semibold">
-              — {currentQuote.author}
+
+            <p style={{ fontSize: '16px', color: 'var(--text-muted)', lineHeight: 1.85, fontWeight: 300, marginBottom: '18px' }}>
+              I've worked across full-stack development, machine learning, and Android — which has given me
+              a broad view of what it takes to ship software end to end. I'm particularly drawn to AI and the
+              ways it can be applied to help people, not just impress them.
             </p>
+
+            <p style={{ fontSize: '16px', color: 'var(--text-muted)', lineHeight: 1.85, fontWeight: 300 }}>
+              I think a lot about product design, clean systems, and tools that respect the people using them.
+              Bilingual (EN/FR), originally from Côte d'Ivoire — I tend to bring a different perspective
+              to most rooms I walk into, and I think that's a strength.
+            </p>
+
+            {/* Language badges */}
+            <div style={{ display: 'flex', gap: '10px', marginTop: '30px', flexWrap: 'wrap' }}>
+              {[
+                { lang: 'English', level: 'Fluent' },
+                { lang: 'French',  level: 'Fluent' },
+                { lang: 'Arabic',  level: 'Basic'  },
+              ].map(({ lang, level }) => (
+                <div
+                  key={lang}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '8px 14px',
+                    border: '0.5px solid var(--border-md)',
+                    borderRadius: '3px',
+                    background: 'var(--bg-2)',
+                  }}
+                >
+                  <span style={{ fontSize: '13px', color: 'var(--text)', fontWeight: 400 }}>{lang}</span>
+                  <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: 'var(--text-faint)', letterSpacing: '0.06em' }}>{level}</span>
+                </div>
+              ))}
+            </div>
           </motion.div>
 
+          {/* Right — quote + stats + interests */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.4 }}
+            transition={{ duration: 0.6, delay: 0.18 }}
+            style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
           >
-            <p className="text-lg text-gray-300 mb-6 leading-relaxed">
-              I'm a second-year <span className="gradient-cyber font-semibold">Computer Science student</span> at 
-              the University of Ottawa, passionate about leveraging technology to solve real-world problems. 
-              My journey in tech is driven by curiosity and a deep fascination with how artificial intelligence 
-              can transform industries.
-            </p>
-
-            <p className="text-lg text-gray-300 mb-6 leading-relaxed">
-              With hands-on experience in <span className="gradient-cyber font-semibold">AI/ML development</span>, 
-              data annotation, and full-stack development, I've worked on projects ranging from guitar transcription 
-              systems to restaurant management applications. I thrive on challenges that push me to learn new 
-              technologies and think creatively.
-            </p>
-
-            <p className="text-lg text-gray-300 mb-8 leading-relaxed">
-              Beyond coding, I'm deeply interested in <span className="gradient-cyber font-semibold">cybersecurity</span> and 
-              ethical hacking, constantly exploring ways to build more secure and resilient systems. I believe in 
-              the power of open-source development and contributing to the tech community.
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <motion.div
-                className="text-center p-4 bg-white/5 rounded-lg"
-                whileHover={{ scale: 1.05, backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className="text-3xl font-bold gradient-cyber mb-2">5+</div>
-                <div className="text-gray-400">Months Experience</div>
-              </motion.div>
-
-              <motion.div
-                className="text-center p-4 bg-white/5 rounded-lg"
-                whileHover={{ scale: 1.05, backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className="text-3xl font-bold gradient-cyber mb-2">10+</div>
-                <div className="text-gray-400">Projects Completed</div>
-              </motion.div>
-
-              <motion.div
-                className="text-center p-4 bg-white/5 rounded-lg"
-                whileHover={{ scale: 1.05, backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className="text-3xl font-bold gradient-cyber mb-2">3</div>
-                <div className="text-gray-400">Languages</div>
-              </motion.div>
+            {/* Quote */}
+            <div style={{
+              background: 'var(--bg-2)',
+              border: '0.5px solid var(--border-md)',
+              borderLeft: '2px solid var(--accent)',
+              borderRadius: '3px',
+              padding: '28px 28px 22px',
+            }}>
+              <p style={{
+                fontFamily: "'DM Serif Display', serif",
+                fontSize: '17px',
+                color: 'var(--text)',
+                lineHeight: 1.7,
+                fontStyle: 'italic',
+                marginBottom: '14px',
+              }}>
+                "{quote.text}"
+              </p>
+              <p style={{
+                fontFamily: "'DM Mono', monospace",
+                fontSize: '10px',
+                color: 'var(--accent)',
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+              }}>
+                — {quote.author}
+              </p>
             </div>
 
-            <motion.div
-              className="mt-8 flex flex-wrap gap-3 justify-center"
-              initial={{ opacity: 0 }}
-              animate={isInView ? { opacity: 1 } : {}}
-              transition={{ duration: 0.6, delay: 0.6 }}
-            >
-              {['English', 'French', 'Arabic'].map((lang, index) => (
-                <motion.span
-                  key={lang}
-                  className="px-4 py-2 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-full text-sm border border-cyan-500/30"
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                  transition={{ duration: 0.3, delay: 0.7 + index * 0.1 }}
-                  whileHover={{ scale: 1.1 }}
-                >
-                  {lang}
-                </motion.span>
+            {/* Stats */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: '1px',
+              background: 'var(--border)',
+              border: '0.5px solid var(--border)',
+              borderRadius: '3px',
+              overflow: 'hidden',
+            }}>
+              {stats.map(({ value, label }) => (
+                <div key={label} style={{ background: 'var(--bg-2)', padding: '22px 16px', textAlign: 'center' }}>
+                  <div style={{
+                    fontFamily: "'DM Serif Display', serif",
+                    fontSize: '30px',
+                    color: 'var(--accent)',
+                    lineHeight: 1,
+                    marginBottom: '8px',
+                  }}>
+                    {value}
+                  </div>
+                  <div style={{
+                    fontFamily: "'DM Mono', monospace",
+                    fontSize: '11px',
+                    color: 'var(--text-muted)',
+                    letterSpacing: '0.07em',
+                    lineHeight: 1.4,
+                  }}>
+                    {label}
+                  </div>
+                </div>
               ))}
-            </motion.div>
+            </div>
+
+            {/* Interests */}
+            <div style={{
+              background: 'var(--bg-2)',
+              border: '0.5px solid var(--border)',
+              borderRadius: '3px',
+              padding: '22px 24px',
+            }}>
+              <div style={{
+                fontFamily: "'DM Mono', monospace",
+                fontSize: '9px',
+                color: 'var(--text-faint)',
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                marginBottom: '14px',
+              }}>
+                Interests
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                {['Artificial Intelligence', 'Full-Stack Dev', 'Machine Learning', 'Product Design', 'Cybersecurity', 'Open Source'].map(tag => (
+                  <span key={tag} className="tag">{tag}</span>
+                ))}
+              </div>
+            </div>
           </motion.div>
-        </motion.div>
+        </div>
       </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .about-grid { grid-template-columns: 1fr !important; gap: 36px !important; }
+        }
+      `}</style>
     </section>
   );
 };
