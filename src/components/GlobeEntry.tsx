@@ -2,11 +2,9 @@ import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
 interface GlobeEntryProps {
-  /** Called once the WebGL renderer is ready (textures may still be loading) */
   onReady?: () => void;
 }
 
-// ── Procedural cloud texture ──────────────────────────────────────────────────
 function buildCloudTexture(): THREE.CanvasTexture {
   const w = 2048, h = 1024;
   const cv = document.createElement('canvas');
@@ -26,19 +24,24 @@ function buildCloudTexture(): THREE.CanvasTexture {
   return new THREE.CanvasTexture(cv);
 }
 
-// ── Atmosphere shader (Fresnel-style rim glow) ────────────────────────────────
+// Softer atmosphere — very subtle, won't create a hard ring
 const atmVert = /* glsl */`
   varying vec3 vNormal;
+  varying vec3 vPosition;
   void main(){
     vNormal = normalize(normalMatrix * normal);
+    vPosition = (modelViewMatrix * vec4(position,1.0)).xyz;
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
   }
 `;
 const atmFrag = /* glsl */`
   varying vec3 vNormal;
   void main(){
-    float intensity = pow(0.72 - dot(vNormal, vec3(0,0,1)), 4.0);
-    gl_FragColor = vec4(0.18, 0.52, 1.0, 1.0) * intensity;
+    // Softer falloff — pow 6 instead of 4, lower base value
+    float rim = 1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0)));
+    float intensity = pow(rim, 8.0) * 0.28;
+    vec3 atmColor = vec3(0.15, 0.45, 0.95);
+    gl_FragColor = vec4(atmColor, intensity);
   }
 `;
 
@@ -48,85 +51,63 @@ export default function GlobeEntry({ onReady }: GlobeEntryProps) {
   useEffect(() => {
     const mount = mountRef.current!;
 
-    // ── Renderer ──────────────────────────────────────────────────────────────
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(mount.clientWidth, mount.clientHeight);
+    renderer.setClearColor(0x000000, 0);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.1;
+    renderer.toneMappingExposure = 1.05;
     mount.appendChild(renderer.domElement);
 
-    // ── Scene & Camera ────────────────────────────────────────────────────────
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(
-      42,
-      mount.clientWidth / mount.clientHeight,
-      0.1, 100
-    );
-    camera.position.z = 2.85;
+    const camera = new THREE.PerspectiveCamera(42, mount.clientWidth / mount.clientHeight, 0.1, 100);
+    camera.position.z = 3.0;
 
-    // ── Lighting ──────────────────────────────────────────────────────────────
-    // Ambient — keeps the dark side barely visible
+    // Lighting
     scene.add(new THREE.AmbientLight(0x0a1628, 0.35));
-
-    // Sun — warm directional
     const sun = new THREE.DirectionalLight(0xfff5e0, 1.9);
     sun.position.set(5, 2.5, 4);
     scene.add(sun);
-
-    // Rim / fill from opposite side — subtle blue
     const rim = new THREE.DirectionalLight(0x2255aa, 0.25);
     rim.position.set(-5, -1, -3);
     scene.add(rim);
 
-    // ── Texture loader ────────────────────────────────────────────────────────
     const loader = new THREE.TextureLoader();
     loader.crossOrigin = 'anonymous';
 
-    // ── Earth sphere ──────────────────────────────────────────────────────────
+    // Earth
     const earthGeo = new THREE.SphereGeometry(1, 96, 96);
     const earthMat = new THREE.MeshPhongMaterial({
       specular: new THREE.Color(0x1a3355),
       shininess: 22,
     });
-
-    // Day texture
-    loader.load(
-      'https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg',
-      tex => { earthMat.map = tex; earthMat.needsUpdate = true; }
-    );
-
-    // Specular map (oceans shinier than land)
-    loader.load(
-      'https://unpkg.com/three-globe/example/img/earth-water.png',
-      tex => { earthMat.specularMap = tex; earthMat.needsUpdate = true; }
-    );
+    loader.load('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg',
+      tex => { earthMat.map = tex; earthMat.needsUpdate = true; });
+    loader.load('https://unpkg.com/three-globe/example/img/earth-water.png',
+      tex => { earthMat.specularMap = tex; earthMat.needsUpdate = true; });
 
     const earth = new THREE.Mesh(earthGeo, earthMat);
-    // Tilt slightly for a natural look
     earth.rotation.x = 0.12;
     scene.add(earth);
 
-    // ── Cloud layer ───────────────────────────────────────────────────────────
+    // Clouds
     const clouds = new THREE.Mesh(
       new THREE.SphereGeometry(1.012, 96, 96),
       new THREE.MeshPhongMaterial({
         map: buildCloudTexture(),
-        transparent: true,
-        opacity: 0.42,
-        depthWrite: false,
+        transparent: true, opacity: 0.38, depthWrite: false,
       })
     );
     clouds.rotation.x = 0.12;
     scene.add(clouds);
 
-    // ── Atmosphere glow ───────────────────────────────────────────────────────
+    // Atmosphere — soft, no hard edge, slightly larger sphere
     const atmMesh = new THREE.Mesh(
-      new THREE.SphereGeometry(1.12, 96, 96),
+      new THREE.SphereGeometry(1.06, 96, 96),
       new THREE.ShaderMaterial({
         vertexShader: atmVert,
         fragmentShader: atmFrag,
-        side: THREE.FrontSide,
+        side: THREE.BackSide,
         blending: THREE.AdditiveBlending,
         transparent: true,
         depthWrite: false,
@@ -134,8 +115,7 @@ export default function GlobeEntry({ onReady }: GlobeEntryProps) {
     );
     scene.add(atmMesh);
 
-    // ── Night-side city lights ─────────────────────────────────────────────────
-    // Dark overlay that only shows on the shadow side
+    // Night city lights
     const nightMat = new THREE.MeshPhongMaterial({
       color: 0x000000,
       emissive: new THREE.Color(0xffcc66),
@@ -145,43 +125,52 @@ export default function GlobeEntry({ onReady }: GlobeEntryProps) {
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     });
-    loader.load(
-      'https://unpkg.com/three-globe/example/img/earth-night.jpg',
-      tex => {
-        nightMat.emissiveMap = tex;
-        nightMat.emissiveIntensity = 0.8;
-        nightMat.opacity = 0.6;
-        nightMat.needsUpdate = true;
-      }
-    );
+    loader.load('https://unpkg.com/three-globe/example/img/earth-night.jpg', tex => {
+      nightMat.emissiveMap = tex;
+      nightMat.emissiveIntensity = 0.8;
+      nightMat.opacity = 0.6;
+      nightMat.needsUpdate = true;
+    });
     const nightMesh = new THREE.Mesh(new THREE.SphereGeometry(1.001, 96, 96), nightMat);
     nightMesh.rotation.x = 0.12;
     scene.add(nightMesh);
 
-    // ── Subtle stars (inside the hublot space) ────────────────────────────────
-    const starPos = new Float32Array(1200 * 3);
+    // Stars — slightly more visible for depth
+    const starPos = new Float32Array(1800 * 3);
     for (let i = 0; i < starPos.length; i++) starPos[i] = (Math.random() - 0.5) * 40;
     const starGeo = new THREE.BufferGeometry();
     starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
     scene.add(new THREE.Points(
       starGeo,
-      new THREE.PointsMaterial({ color: 0xffffff, size: 0.055, transparent: true, opacity: 0.7 })
+      new THREE.PointsMaterial({ color: 0xffffff, size: 0.06, transparent: true, opacity: 0.85 })
     ));
+
+    // Subtle depth haze — very faint radial fog around scene
+    // Achieved via a large dark sphere behind everything
+    const hazeMesh = new THREE.Mesh(
+      new THREE.SphereGeometry(18, 32, 32),
+      new THREE.MeshBasicMaterial({
+        color: 0x000008,
+        side: THREE.BackSide,
+        transparent: true,
+        opacity: 0.6,
+      })
+    );
+    scene.add(hazeMesh);
 
     onReady?.();
 
-    // ── Animation loop ────────────────────────────────────────────────────────
     let animId: number;
     const animate = () => {
       animId = requestAnimationFrame(animate);
-      earth.rotation.y += 0.0012;
-      clouds.rotation.y += 0.0016;
+      // Slower rotation
+      earth.rotation.y  += 0.0007;
+      clouds.rotation.y += 0.0010;
       nightMesh.rotation.y = earth.rotation.y;
       renderer.render(scene, camera);
     };
     animate();
 
-    // ── Resize ────────────────────────────────────────────────────────────────
     const onResize = () => {
       if (!mount) return;
       camera.aspect = mount.clientWidth / mount.clientHeight;
@@ -199,10 +188,5 @@ export default function GlobeEntry({ onReady }: GlobeEntryProps) {
     };
   }, []);
 
-  return (
-    <div
-      ref={mountRef}
-      style={{ width: '100%', height: '100%' }}
-    />
-  );
+  return <div ref={mountRef} style={{ width: '100%', height: '100%' }} />;
 }
