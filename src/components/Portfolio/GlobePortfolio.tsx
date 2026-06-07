@@ -12,7 +12,6 @@ export interface Badge {
   lon:   number;
 }
 
-// Kept for scroll spy / setRef compatibility but no longer rendered
 export const BADGES: Badge[] = [
   { id: 'hero',       label: 'HOME',    lat:  25,  lon:  20  },
   { id: 'about',      label: 'ABOUT',   lat:  48,  lon: -80  },
@@ -22,13 +21,18 @@ export const BADGES: Badge[] = [
   { id: 'contact',    label: 'CONTACT', lat:  55,  lon:  15  },
 ];
 
-export const SECTION_LIGHTS: Record<SectionId, { color: THREE.Color; intensity: number }> = {
-  hero:       { color: new THREE.Color(0xfff5e0), intensity: 1.9 },
-  about:      { color: new THREE.Color(0xffd090), intensity: 2.2 },
-  projects:   { color: new THREE.Color(0xb0d4ff), intensity: 1.7 },
-  skills:     { color: new THREE.Color(0xc8eaff), intensity: 1.6 },
-  experience: { color: new THREE.Color(0xffb060), intensity: 2.1 },
-  contact:    { color: new THREE.Color(0xff90c0), intensity: 1.8 },
+export const SECTION_LIGHTS: Record<SectionId, {
+  color:       THREE.Color;
+  intensity:   number;
+  ambientColor: THREE.Color;
+  ambientIntensity: number;
+}> = {
+  hero:       { color: new THREE.Color(0xfff5e0), intensity: 2.0,  ambientColor: new THREE.Color(0x0a1628), ambientIntensity: 0.35 },
+  about:      { color: new THREE.Color(0xffaa00), intensity: 2.8,  ambientColor: new THREE.Color(0x1a0e00), ambientIntensity: 0.55 },
+  projects:   { color: new THREE.Color(0x4488ff), intensity: 2.5,  ambientColor: new THREE.Color(0x000d2a), ambientIntensity: 0.6  },
+  skills:     { color: new THREE.Color(0x00ffcc), intensity: 2.2,  ambientColor: new THREE.Color(0x001a14), ambientIntensity: 0.5  },
+  experience: { color: new THREE.Color(0xff5500), intensity: 2.9,  ambientColor: new THREE.Color(0x1a0800), ambientIntensity: 0.6  },
+  contact:    { color: new THREE.Color(0xff2288), intensity: 2.6,  ambientColor: new THREE.Color(0x1a0010), ambientIntensity: 0.55 },
 };
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
@@ -91,18 +95,23 @@ export default function GlobePortfolio({ activeSection, onReady }: GlobePortfoli
   }, [activeSection]);
 
   const sceneRef = useRef<{
-    sun:          THREE.DirectionalLight;
-    targetColor:  THREE.Color;
-    targetIntens: number;
+    sun:              THREE.DirectionalLight;
+    ambient:          THREE.AmbientLight;
+    targetColor:      THREE.Color;
+    targetIntens:     number;
+    targetAmbColor:   THREE.Color;
+    targetAmbIntens:  number;
   } | null>(null);
 
-  // Update light target on section change
+  // Update light targets on section change
   useEffect(() => {
     const s = sceneRef.current;
     if (!s) return;
     const light = SECTION_LIGHTS[activeSection];
     s.targetColor.copy(light.color);
-    s.targetIntens = light.intensity;
+    s.targetIntens    = light.intensity;
+    s.targetAmbColor.copy(light.ambientColor);
+    s.targetAmbIntens = light.ambientIntensity;
   }, [activeSection]);
 
   useEffect(() => {
@@ -121,10 +130,13 @@ export default function GlobePortfolio({ activeSection, onReady }: GlobePortfoli
     camera.position.z = 3.2;
 
     // Lights
-    scene.add(new THREE.AmbientLight(0x0a1628, 0.35));
-    const sun = new THREE.DirectionalLight(0xfff5e0, 1.9);
+    const ambient = new THREE.AmbientLight(0x0a1628, 0.35);
+    scene.add(ambient);
+
+    const sun = new THREE.DirectionalLight(0xfff5e0, 2.0);
     sun.position.set(5, 2.5, 4);
     scene.add(sun);
+
     const rimLight = new THREE.DirectionalLight(0x2255aa, 0.25);
     rimLight.position.set(-5, -1, -3);
     scene.add(rimLight);
@@ -173,11 +185,15 @@ export default function GlobePortfolio({ activeSection, onReady }: GlobePortfoli
     starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
     scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.06, transparent: true, opacity: 0.7 })));
 
-    const targetColor  = SECTION_LIGHTS['hero'].color.clone();
-    const currentColor = SECTION_LIGHTS['hero'].color.clone();
-    let   targetIntens = SECTION_LIGHTS['hero'].intensity;
+    // Lerp state
+    const targetColor     = SECTION_LIGHTS['hero'].color.clone();
+    const currentColor    = SECTION_LIGHTS['hero'].color.clone();
+    const targetAmbColor  = SECTION_LIGHTS['hero'].ambientColor.clone();
+    const currentAmbColor = SECTION_LIGHTS['hero'].ambientColor.clone();
+    let   targetIntens    = SECTION_LIGHTS['hero'].intensity;
+    let   targetAmbIntens = SECTION_LIGHTS['hero'].ambientIntensity;
 
-    sceneRef.current = { sun, targetColor, targetIntens };
+    sceneRef.current = { sun, ambient, targetColor, targetIntens, targetAmbColor, targetAmbIntens };
     onReady();
 
     // Animation loop
@@ -187,9 +203,17 @@ export default function GlobePortfolio({ activeSection, onReady }: GlobePortfoli
       earth.rotation.y    += 0.0007;
       clouds.rotation.y   += 0.0010;
       nightMesh.rotation.y = earth.rotation.y;
-      currentColor.lerp(targetColor, 0.025);
+
+      // Lerp sun
+      currentColor.lerp(targetColor, 0.018);
       sun.color.copy(currentColor);
-      sun.intensity += (targetIntens - sun.intensity) * 0.025;
+      sun.intensity += (targetIntens - sun.intensity) * 0.018;
+
+      // Lerp ambient
+      currentAmbColor.lerp(targetAmbColor, 0.018);
+      ambient.color.copy(currentAmbColor);
+      ambient.intensity += (targetAmbIntens - ambient.intensity) * 0.018;
+
       renderer.render(scene, camera);
     };
     animate();
