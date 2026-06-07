@@ -125,7 +125,7 @@ export default function AboutSection({ setRef }: AboutSectionProps) {
               {[
                 { label: 'Building',     value: 'MARA · Seren · This portfolio'                    },
                 { label: 'Studying',     value: 'B.Sc. Computer Science — University of Ottawa'     },
-                { label: 'Looking for',  value: 'Summer 2026 Co-op · 4 months · Ottawa or remote'   },
+                { label: 'Looking for',  value: 'Co-op · 4 months · Ottawa or remote'   },
               ].map(({ label, value }) => (
                 <div key={label} style={{ display: 'flex', gap: 20, alignItems: 'baseline' }}>
                   <span style={{
