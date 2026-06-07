@@ -72,21 +72,24 @@ export function Fade({ children, delay = 0, style, className }: FadeProps) {
     const el = ref.current;
     if (!el) return;
 
-    // Set initial state immediately so element is invisible before trigger
-    gsap.set(el, { opacity: 0, y: 32 });
+    // Start ghostlike — visible enough to feel like a reveal
+    gsap.set(el, { opacity: 0.15, y: 48 });
 
     const st = ScrollTrigger.create({
-      trigger: el,
-      start:   'top 90%',
-      once:    true,
+      trigger:     el,
+      start:       'top 92%',
+      end:         'bottom 8%',
       onEnter: () => {
-        gsap.to(el, {
-          opacity:  1,
-          y:        0,
-          duration: 0.8,
-          delay,
-          ease:     'power3.out',
-        });
+        gsap.to(el, { opacity: 1, y: 0, duration: 0.7, delay, ease: 'power2.out' });
+      },
+      onLeave: () => {
+        gsap.to(el, { opacity: 0.15, y: -24, duration: 0.5, ease: 'power2.in' });
+      },
+      onEnterBack: () => {
+        gsap.to(el, { opacity: 1, y: 0, duration: 0.7, delay, ease: 'power2.out' });
+      },
+      onLeaveBack: () => {
+        gsap.to(el, { opacity: 0.15, y: 48, duration: 0.5, ease: 'power2.in' });
       },
     });
 
@@ -159,40 +162,44 @@ export default function PortfolioLayout({ children, isVisible = true }: Portfoli
   useEffect(() => {
     if (!globeReady || !isVisible) return;
 
-    // Make sure all hero elements start hidden
     gsap.set([nameRef.current, taglineRef.current, linksRef.current, socialsRef.current], {
-      opacity: 0, y: 0,
+      opacity: 0.15, y: 0,
     });
     gsap.set(globeWrapRef.current, { opacity: 0, x: 60, scale: 0.9 });
 
     const tl = gsap.timeline({ delay: 0.05 });
 
+    // Globe slides in
     tl.to(globeWrapRef.current, {
       opacity: 1, x: 0, scale: 1,
       duration: 0.75, ease: 'power3.out',
     }, 0);
 
+    // Name — cinematic reveal from below
     tl.fromTo(nameRef.current,
-      { opacity: 0, y: 56 },
-      { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' },
+      { opacity: 0.15, y: 64 },
+      { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' },
       0.2
     );
 
+    // Tagline
     tl.fromTo(taglineRef.current,
-      { opacity: 0, y: 20 },
+      { opacity: 0.15, y: 28 },
       { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' },
       0.65
     );
 
+    // CTAs
     tl.fromTo(linksRef.current,
-      { opacity: 0, y: 12 },
+      { opacity: 0.15, y: 16 },
       { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
       0.82
     );
 
+    // Socials — fade only, no vertical movement
     tl.fromTo(socialsRef.current,
-      { opacity: 0 },
-      { opacity: 1, duration: 0.5, ease: 'power2.out' },
+      { opacity: 0.15 },
+      { opacity: 1, duration: 0.55, ease: 'power2.out' },
       0.95
     );
 
@@ -287,7 +294,7 @@ export default function PortfolioLayout({ children, isVisible = true }: Portfoli
             fontWeight:    800,
             marginBottom:  0,
             letterSpacing: '-0.025em',
-            opacity:       0,
+            opacity:       0.15,
           }}>
             Habib<br />
             Ibrahim<br />
@@ -303,7 +310,7 @@ export default function PortfolioLayout({ children, isVisible = true }: Portfoli
             marginTop:    28,
             marginBottom: 40,
             maxWidth:     400,
-            opacity:      0,
+            opacity:      0.15,
           }}>
             CS student · University of Ottawa<br />
             Building intelligent systems at the intersection<br />
@@ -311,7 +318,7 @@ export default function PortfolioLayout({ children, isVisible = true }: Portfoli
           </p>
 
           {/* CTAs */}
-          <div ref={linksRef} style={{ display: 'flex', gap: 32, alignItems: 'center', flexWrap: 'wrap', opacity: 0 }}>
+          <div ref={linksRef} style={{ display: 'flex', gap: 32, alignItems: 'center', flexWrap: 'wrap', opacity: 0.15 }}>
             {[
               { label: 'VIEW PROJECTS →', target: 'projects' as SectionId },
               { label: 'CONTACT →',       target: 'contact'  as SectionId },
@@ -326,7 +333,7 @@ export default function PortfolioLayout({ children, isVisible = true }: Portfoli
           </div>
 
           {/* Socials */}
-          <div ref={socialsRef} style={{ display: 'flex', gap: 20, alignItems: 'center', marginTop: 52, opacity: 0 }}>
+          <div ref={socialsRef} style={{ display: 'flex', gap: 20, alignItems: 'center', marginTop: 52, opacity: 0.15 }}>
             {[
               { href: 'https://github.com/lein5in',                                label: 'GH' },
               { href: 'https://www.linkedin.com/in/habib-ibrahim-toure-440740389', label: 'LI' },
