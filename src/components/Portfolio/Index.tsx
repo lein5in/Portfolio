@@ -13,7 +13,7 @@ interface PortfolioProps {
 export default function Portfolio({ isVisible = false }: PortfolioProps) {
   return (
     <PortfolioLayout isVisible={isVisible}>
-      {(activeSection: SectionId, setRef: (id: SectionId) => (el: HTMLElement | null) => void) => (
+      {(_: SectionId, setRef: (id: SectionId) => (el: HTMLElement | null) => void) => (
         <>
           <AboutSection      setRef={setRef} />
           <ProjectsSection   setRef={setRef} />

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { LanguageProvider } from './context/LanguageContext';
 import EntryScreen from './components/EntryScreen';
-import Portfolio from './components/Portfolio/index';
+import Portfolio from './components/Portfolio/Index';
 
 function App() {
   const [hasEntered,       setHasEntered]       = useState(false);
