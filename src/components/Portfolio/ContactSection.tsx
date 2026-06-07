@@ -47,8 +47,8 @@ export default function ContactSection({ setRef }: ContactSectionProps) {
           <div style={sectionLabel}>Contact</div>
           <div style={{
             ...mono,
-            fontSize:      9,
-            color:         'rgba(255,255,255,0.2)',
+            fontSize:      11,
+            color:         'rgba(255,255,255,0.45)',
             letterSpacing: '0.26em',
             textTransform: 'uppercase',
             marginBottom:  12,
@@ -59,7 +59,7 @@ export default function ContactSection({ setRef }: ContactSectionProps) {
           <p style={{
             fontFamily:   "'DM Mono', monospace",
             fontSize:     12,
-            color:        'rgba(255,255,255,0.32)',
+            color:        'rgba(255,255,255,0.55)',
             lineHeight:   1.9,
             maxWidth:     400,
             marginBottom: 52,
@@ -82,7 +82,7 @@ export default function ContactSection({ setRef }: ContactSectionProps) {
                 required
                 placeholder="John Doe"
                 style={inputStyle}
-                onFocus={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; }}
+                onFocus={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.45)'; }}
                 onBlur={e  => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; }}
               />
             </div>
@@ -96,7 +96,7 @@ export default function ContactSection({ setRef }: ContactSectionProps) {
                 required
                 placeholder="john@example.com"
                 style={inputStyle}
-                onFocus={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; }}
+                onFocus={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.45)'; }}
                 onBlur={e  => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; }}
               />
             </div>
@@ -110,7 +110,7 @@ export default function ContactSection({ setRef }: ContactSectionProps) {
                 rows={5}
                 placeholder="Tell me about your project or opportunity..."
                 style={{ ...inputStyle, resize: 'vertical', minHeight: 120 }}
-                onFocus={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; }}
+                onFocus={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.45)'; }}
                 onBlur={e  => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; }}
               />
             </div>
@@ -121,7 +121,7 @@ export default function ContactSection({ setRef }: ContactSectionProps) {
               style={submitBtn}
               onMouseEnter={e => {
                 e.currentTarget.style.color        = '#ffffff';
-                e.currentTarget.style.borderColor  = 'rgba(255,255,255,0.25)';
+                e.currentTarget.style.borderColor  = 'rgba(255,255,255,0.48)';
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.color        = 'rgba(255,255,255,0.4)';
@@ -146,12 +146,12 @@ export default function ContactSection({ setRef }: ContactSectionProps) {
             </button>
 
             {status === 'success' && (
-              <p style={{ ...mono, fontSize: 10, color: '#7ecfa0', letterSpacing: '0.1em', textAlign: 'center' } as React.CSSProperties}>
+              <p style={{ ...mono, fontSize: 12, color: '#7ecfa0', letterSpacing: '0.1em', textAlign: 'center' } as React.CSSProperties}>
                 ✓ Message sent — I'll get back to you soon.
               </p>
             )}
             {status === 'error' && (
-              <p style={{ ...mono, fontSize: 10, color: '#e27e7e', letterSpacing: '0.1em', textAlign: 'center' } as React.CSSProperties}>
+              <p style={{ ...mono, fontSize: 12, color: '#e27e7e', letterSpacing: '0.1em', textAlign: 'center' } as React.CSSProperties}>
                 ✗ Something went wrong — email me directly.
               </p>
             )}
@@ -172,12 +172,12 @@ export default function ContactSection({ setRef }: ContactSectionProps) {
             ].map((item, i, arr) => {
               const inner = (
                 <>
-                  <span style={{ color: 'rgba(255,255,255,0.2)', flexShrink: 0 }}>{item.icon}</span>
+                  <span style={{ color: 'rgba(255,255,255,0.68)', flexShrink: 0 }}>{item.icon}</span>
                   <div>
                     <div style={{
                       ...mono,
                       fontSize:      8,
-                      color:         'rgba(255,255,255,0.18)',
+                      color:         'rgba(255,255,255,0.58)',
                       letterSpacing: '0.2em',
                       textTransform: 'uppercase',
                       marginBottom:  3,
@@ -187,7 +187,7 @@ export default function ContactSection({ setRef }: ContactSectionProps) {
                     <div style={{
                       fontFamily: "'DM Mono', monospace",
                       fontSize:   12,
-                      color:      'rgba(255,255,255,0.42)',
+                      color:      'rgba(255,255,255,0.65)',
                     }}>
                       {item.value}
                     </div>
@@ -232,10 +232,10 @@ export default function ContactSection({ setRef }: ContactSectionProps) {
             style={cvBtn}
             onMouseEnter={e => {
               e.currentTarget.style.color       = '#ffffff';
-              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)';
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.45)';
             }}
             onMouseLeave={e => {
-              e.currentTarget.style.color       = 'rgba(255,255,255,0.28)';
+              e.currentTarget.style.color       = 'rgba(255,255,255,0.52)';
               e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)';
             }}
           >
@@ -254,10 +254,10 @@ export default function ContactSection({ setRef }: ContactSectionProps) {
             flexWrap:       'wrap',
             gap:            12,
           }}>
-            <span style={{ ...mono, fontSize: 9, color: 'rgba(255,255,255,0.12)', letterSpacing: '0.1em' } as React.CSSProperties}>
+            <span style={{ ...mono, fontSize: 11, color: 'rgba(255,255,255,0.12)', letterSpacing: '0.1em' } as React.CSSProperties}>
               © 2026 Habib Ibrahim Touré
             </span>
-            <span style={{ ...mono, fontSize: 9, color: 'rgba(255,255,255,0.12)', letterSpacing: '0.1em' } as React.CSSProperties}>
+            <span style={{ ...mono, fontSize: 11, color: 'rgba(255,255,255,0.12)', letterSpacing: '0.1em' } as React.CSSProperties}>
               Built with React · Three.js · GLSL · GSAP
             </span>
           </div>
@@ -288,7 +288,7 @@ const sectionTitle: React.CSSProperties = {
 const labelStyle: React.CSSProperties = {
   fontFamily:    "'DM Mono', monospace",
   fontSize:      8,
-  color:         'rgba(255,255,255,0.2)',
+  color:         'rgba(255,255,255,0.45)',
   letterSpacing: '0.24em',
   textTransform: 'uppercase',
   display:       'block',
@@ -336,7 +336,7 @@ const cvBtn: React.CSSProperties = {
   padding:        '13px',
   background:     'transparent',
   border:         '0.5px solid rgba(255,255,255,0.07)',
-  color:          'rgba(255,255,255,0.28)',
+  color:          'rgba(255,255,255,0.52)',
   borderRadius:   2,
   textDecoration: 'none',
   transition:     'all 0.2s',

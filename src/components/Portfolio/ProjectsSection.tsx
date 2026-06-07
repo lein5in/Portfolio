@@ -110,8 +110,8 @@ export default function ProjectsSection({ setRef }: ProjectsSectionProps) {
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 16 }}>
                     <span style={{
                       ...mono,
-                      fontSize:      10,
-                      color:         'rgba(255,255,255,0.15)',
+                      fontSize:      12,
+                      color:         'rgba(255,255,255,0.32)',
                       letterSpacing: '0.12em',
                     }}>
                       {p.num}
@@ -130,8 +130,8 @@ export default function ProjectsSection({ setRef }: ProjectsSectionProps) {
                       </h3>
                       <div style={{
                         ...mono,
-                        fontSize:      10,
-                        color:         'rgba(255,255,255,0.25)',
+                        fontSize:      12,
+                        color:         'rgba(255,255,255,0.48)',
                         letterSpacing: '0.14em',
                       }}>
                         {p.subtitle}
@@ -142,7 +142,7 @@ export default function ProjectsSection({ setRef }: ProjectsSectionProps) {
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
                     <span style={{
                       ...mono,
-                      fontSize:      9,
+                      fontSize:      11,
                       letterSpacing: '0.1em',
                       padding:       '3px 10px',
                       borderRadius:  2,
@@ -157,8 +157,8 @@ export default function ProjectsSection({ setRef }: ProjectsSectionProps) {
                     </span>
                     <span style={{
                       ...mono,
-                      fontSize:      9,
-                      color:         'rgba(255,255,255,0.18)',
+                      fontSize:      11,
+                      color:         'rgba(255,255,255,0.58)',
                       letterSpacing: '0.08em',
                     }}>
                       {p.period}
@@ -169,7 +169,7 @@ export default function ProjectsSection({ setRef }: ProjectsSectionProps) {
                 {/* Summary */}
                 <p style={{
                   fontFamily: "'DM Mono', monospace",
-                  fontSize:   13,
+                  fontSize:   14,
                   color:      'rgba(255,255,255,0.55)',
                   lineHeight: 1.85,
                   maxWidth:   520,
@@ -182,7 +182,7 @@ export default function ProjectsSection({ setRef }: ProjectsSectionProps) {
                 <p style={{
                   fontFamily:  "'DM Mono', monospace",
                   fontSize:    12,
-                  color:       'rgba(255,255,255,0.28)',
+                  color:       'rgba(255,255,255,0.52)',
                   lineHeight:  1.9,
                   maxWidth:    520,
                   marginBottom: 24,
@@ -197,7 +197,7 @@ export default function ProjectsSection({ setRef }: ProjectsSectionProps) {
                   {p.bullets.map(b => (
                     <div key={b} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                       <span style={{
-                        color:     'rgba(255,255,255,0.2)',
+                        color:     'rgba(255,255,255,0.45)',
                         flexShrink: 0,
                         fontSize:  12,
                         marginTop: 2,
@@ -207,7 +207,7 @@ export default function ProjectsSection({ setRef }: ProjectsSectionProps) {
                       <span style={{
                         fontFamily: "'DM Mono', monospace",
                         fontSize:   12,
-                        color:      'rgba(255,255,255,0.38)',
+                        color:      'rgba(255,255,255,0.62)',
                         lineHeight: 1.75,
                       }}>
                         {b}
@@ -237,7 +237,7 @@ export default function ProjectsSection({ setRef }: ProjectsSectionProps) {
                         rel="noopener noreferrer"
                         style={linkStyle}
                         onMouseEnter={e => { e.currentTarget.style.color = '#fff'; }}
-                        onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.25)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.48)'; }}
                       >
                         <FaGithub size={12} /> GITHUB
                       </a>
@@ -249,7 +249,7 @@ export default function ProjectsSection({ setRef }: ProjectsSectionProps) {
                         rel="noopener noreferrer"
                         style={linkStyle}
                         onMouseEnter={e => { e.currentTarget.style.color = '#fff'; }}
-                        onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.25)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.48)'; }}
                       >
                         <FaExternalLinkAlt size={11} /> LIVE
                       </a>
@@ -294,8 +294,8 @@ const sectionTitle: React.CSSProperties = {
 
 const techTag: React.CSSProperties = {
   fontFamily:    "'DM Mono', monospace",
-  fontSize:      9,
-  color:         'rgba(255,255,255,0.3)',
+  fontSize:      11,
+  color:         'rgba(255,255,255,0.72)',
   background:    'rgba(255,255,255,0.03)',
   border:        '0.5px solid rgba(255,255,255,0.08)',
   padding:       '4px 10px',
@@ -308,9 +308,9 @@ const linkStyle: React.CSSProperties = {
   alignItems:    'center',
   gap:           6,
   fontFamily:    "'DM Mono', monospace",
-  fontSize:      10,
+  fontSize:      12,
   letterSpacing: '0.14em',
-  color:         'rgba(255,255,255,0.25)',
+  color:         'rgba(255,255,255,0.48)',
   textDecoration: 'none',
   transition:    'color 0.2s',
 };
@@ -320,9 +320,9 @@ const githubCta: React.CSSProperties = {
   alignItems:    'center',
   gap:           8,
   fontFamily:    "'DM Mono', monospace",
-  fontSize:      10,
+  fontSize:      12,
   letterSpacing: '0.18em',
-  color:         'rgba(255,255,255,0.3)',
+  color:         'rgba(255,255,255,0.72)',
   textDecoration: 'none',
   transition:    'color 0.2s',
 };

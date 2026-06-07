@@ -29,8 +29,8 @@ export default function ExperienceSection({ setRef }: ExperienceSectionProps) {
             <Fade>
               <div style={{
                 ...mono,
-                fontSize:      9,
-                color:         'rgba(255,255,255,0.2)',
+                fontSize:      11,
+                color:         'rgba(255,255,255,0.45)',
                 letterSpacing: '0.26em',
                 textTransform: 'uppercase',
                 marginBottom:  36,
@@ -55,8 +55,8 @@ export default function ExperienceSection({ setRef }: ExperienceSectionProps) {
                   <Dot filled />
                   <div style={{
                     ...mono,
-                    fontSize:      9,
-                    color:         'rgba(255,255,255,0.25)',
+                    fontSize:      11,
+                    color:         'rgba(255,255,255,0.48)',
                     letterSpacing: '0.1em',
                     marginBottom:  8,
                   }}>
@@ -74,8 +74,8 @@ export default function ExperienceSection({ setRef }: ExperienceSectionProps) {
                   </div>
                   <div style={{
                     ...mono,
-                    fontSize:      10,
-                    color:         'rgba(255,255,255,0.28)',
+                    fontSize:      12,
+                    color:         'rgba(255,255,255,0.52)',
                     marginBottom:  18,
                   }}>
                     DataAnnotation · Remote, ON
@@ -102,8 +102,8 @@ export default function ExperienceSection({ setRef }: ExperienceSectionProps) {
                   <Dot filled={false} />
                   <div style={{
                     ...mono,
-                    fontSize:      9,
-                    color:         'rgba(255,255,255,0.18)',
+                    fontSize:      11,
+                    color:         'rgba(255,255,255,0.58)',
                     letterSpacing: '0.1em',
                     marginBottom:  6,
                   }}>
@@ -112,7 +112,7 @@ export default function ExperienceSection({ setRef }: ExperienceSectionProps) {
                   <div style={{
                     fontFamily: "'DM Mono', monospace",
                     fontSize:   12,
-                    color:      'rgba(255,255,255,0.25)',
+                    color:      'rgba(255,255,255,0.48)',
                     fontStyle:  'italic',
                   }}>
                     Actively seeking 4-month Co-op internship
@@ -127,8 +127,8 @@ export default function ExperienceSection({ setRef }: ExperienceSectionProps) {
             <Fade>
               <div style={{
                 ...mono,
-                fontSize:      9,
-                color:         'rgba(255,255,255,0.2)',
+                fontSize:      11,
+                color:         'rgba(255,255,255,0.45)',
                 letterSpacing: '0.26em',
                 textTransform: 'uppercase',
                 marginBottom:  36,
@@ -153,8 +153,8 @@ export default function ExperienceSection({ setRef }: ExperienceSectionProps) {
                   <Dot filled />
                   <div style={{
                     ...mono,
-                    fontSize:      9,
-                    color:         'rgba(255,255,255,0.25)',
+                    fontSize:      11,
+                    color:         'rgba(255,255,255,0.48)',
                     letterSpacing: '0.1em',
                     marginBottom:  8,
                   }}>
@@ -172,8 +172,8 @@ export default function ExperienceSection({ setRef }: ExperienceSectionProps) {
                   </div>
                   <div style={{
                     ...mono,
-                    fontSize:  10,
-                    color:     'rgba(255,255,255,0.28)',
+                    fontSize:  12,
+                    color:     'rgba(255,255,255,0.52)',
                     marginBottom: 18,
                   }}>
                     University of Ottawa · Ottawa, ON
@@ -199,8 +199,8 @@ export default function ExperienceSection({ setRef }: ExperienceSectionProps) {
                   <Dot filled={false} />
                   <div style={{
                     ...mono,
-                    fontSize:      9,
-                    color:         'rgba(255,255,255,0.15)',
+                    fontSize:      11,
+                    color:         'rgba(255,255,255,0.32)',
                     letterSpacing: '0.1em',
                     marginBottom:  6,
                   }}>
@@ -217,8 +217,8 @@ export default function ExperienceSection({ setRef }: ExperienceSectionProps) {
                   </div>
                   <div style={{
                     ...mono,
-                    fontSize: 10,
-                    color:    'rgba(255,255,255,0.22)',
+                    fontSize: 12,
+                    color:    'rgba(255,255,255,0.42)',
                   }}>
                     Collège Saint-Viateur d'Abidjan · Côte d'Ivoire
                   </div>
@@ -241,8 +241,8 @@ export default function ExperienceSection({ setRef }: ExperienceSectionProps) {
           }}>
             <span style={{
               ...mono,
-              fontSize:      9,
-              color:         'rgba(255,255,255,0.18)',
+              fontSize:      11,
+              color:         'rgba(255,255,255,0.58)',
               letterSpacing: '0.24em',
               textTransform: 'uppercase',
             } as React.CSSProperties}>
@@ -264,8 +264,8 @@ export default function ExperienceSection({ setRef }: ExperienceSectionProps) {
                 </span>
                 <span style={{
                   ...mono,
-                  fontSize:      9,
-                  color:         'rgba(255,255,255,0.2)',
+                  fontSize:      11,
+                  color:         'rgba(255,255,255,0.45)',
                   letterSpacing: '0.1em',
                 }}>
                   {lv}
@@ -302,7 +302,7 @@ function Bullet({ text }: { text: string }) {
   return (
     <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
       <span style={{
-        color:     'rgba(255,255,255,0.18)',
+        color:     'rgba(255,255,255,0.38)',
         flexShrink: 0,
         fontSize:  11,
         marginTop: 2,
@@ -312,7 +312,7 @@ function Bullet({ text }: { text: string }) {
       <span style={{
         fontFamily: "'DM Mono', monospace",
         fontSize:   12,
-        color:      'rgba(255,255,255,0.35)',
+        color:      'rgba(255,255,255,0.58)',
         lineHeight: 1.75,
       }}>
         {text}
@@ -335,8 +335,8 @@ const sectionTitle: React.CSSProperties = {
 
 const techTag: React.CSSProperties = {
   fontFamily:    "'DM Mono', monospace",
-  fontSize:      9,
-  color:         'rgba(255,255,255,0.28)',
+  fontSize:      11,
+  color:         'rgba(255,255,255,0.52)',
   background:    'transparent',
   border:        '0.5px solid rgba(255,255,255,0.07)',
   padding:       '3px 9px',

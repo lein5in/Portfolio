@@ -96,8 +96,8 @@ export default function AboutSection({ setRef }: AboutSectionProps) {
                 </div>
                 <div style={{
                   ...mono,
-                  fontSize:      9,
-                  color:         'rgba(255,255,255,0.22)',
+                  fontSize:      11,
+                  color:         'rgba(255,255,255,0.42)',
                   letterSpacing: '0.18em',
                   textTransform: 'uppercase',
                 } as React.CSSProperties}>
@@ -113,8 +113,8 @@ export default function AboutSection({ setRef }: AboutSectionProps) {
           <div>
             <div style={{
               ...mono,
-              fontSize:      9,
-              color:         'rgba(255,255,255,0.2)',
+              fontSize:      11,
+              color:         'rgba(255,255,255,0.45)',
               letterSpacing: '0.28em',
               textTransform: 'uppercase',
               marginBottom:  24,
@@ -130,8 +130,8 @@ export default function AboutSection({ setRef }: AboutSectionProps) {
                 <div key={label} style={{ display: 'flex', gap: 20, alignItems: 'baseline' }}>
                   <span style={{
                     ...mono,
-                    fontSize:      9,
-                    color:         'rgba(255,255,255,0.25)',
+                    fontSize:      11,
+                    color:         'rgba(255,255,255,0.48)',
                     letterSpacing: '0.12em',
                     minWidth:      88,
                     textTransform: 'uppercase',
@@ -140,7 +140,7 @@ export default function AboutSection({ setRef }: AboutSectionProps) {
                   </span>
                   <span style={{
                     fontFamily: "'DM Mono', monospace",
-                    fontSize:   13,
+                    fontSize:   14,
                     color:      'rgba(255,255,255,0.5)',
                     fontWeight: 400,
                     lineHeight: 1.6,
@@ -179,16 +179,16 @@ function phraseStyle(size: 'large' | 'medium' | 'small'): React.CSSProperties {
   if (size === 'medium') return {
     ...base,
     fontFamily: "'DM Mono', monospace",
-    fontSize:   13,
-    color:      'rgba(255,255,255,0.42)',
+    fontSize:   14,
+    color:      'rgba(255,255,255,0.65)',
     lineHeight: 1.85,
   };
   return {
     ...base,
     fontFamily:    "'DM Mono', monospace",
-    fontSize:      10,
+    fontSize:      12,
     letterSpacing: '0.18em',
-    color:         'rgba(255,255,255,0.22)',
+    color:         'rgba(255,255,255,0.42)',
     textTransform: 'uppercase',
   };
 }

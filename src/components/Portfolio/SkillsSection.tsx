@@ -75,8 +75,8 @@ export default function SkillsSection({ setRef }: SkillsSectionProps) {
               }}>
                 <div style={{
                   ...mono,
-                  fontSize:      9,
-                  color:         'rgba(255,255,255,0.2)',
+                  fontSize:      11,
+                  color:         'rgba(255,255,255,0.45)',
                   letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   paddingTop:    4,
@@ -90,10 +90,10 @@ export default function SkillsSection({ setRef }: SkillsSectionProps) {
                       style={skillTag}
                       onMouseEnter={e => {
                         e.currentTarget.style.color       = '#ffffff';
-                        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)';
+                        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.45)';
                       }}
                       onMouseLeave={e => {
-                        e.currentTarget.style.color       = 'rgba(255,255,255,0.35)';
+                        e.currentTarget.style.color       = 'rgba(255,255,255,0.58)';
                         e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)';
                       }}
                     >
@@ -116,8 +116,8 @@ export default function SkillsSection({ setRef }: SkillsSectionProps) {
             }}>
               <div style={{
                 ...mono,
-                fontSize:      9,
-                color:         'rgba(255,255,255,0.2)',
+                fontSize:      11,
+                color:         'rgba(255,255,255,0.45)',
                 letterSpacing: '0.2em',
                 textTransform: 'uppercase',
               } as React.CSSProperties}>
@@ -127,8 +127,8 @@ export default function SkillsSection({ setRef }: SkillsSectionProps) {
                 {softSkills.map(s => (
                   <span key={s} style={{
                     fontFamily:    "'DM Mono', monospace",
-                    fontSize:      9,
-                    color:         'rgba(255,255,255,0.22)',
+                    fontSize:      11,
+                    color:         'rgba(255,255,255,0.42)',
                     border:        '0.5px solid rgba(255,255,255,0.06)',
                     padding:       '4px 10px',
                     borderRadius:  2,
@@ -161,8 +161,8 @@ const sectionTitle: React.CSSProperties = {
 
 const skillTag: React.CSSProperties = {
   fontFamily:    "'DM Mono', monospace",
-  fontSize:      9,
-  color:         'rgba(255,255,255,0.35)',
+  fontSize:      11,
+  color:         'rgba(255,255,255,0.72)',
   background:    'transparent',
   border:        '0.5px solid rgba(255,255,255,0.07)',
   padding:       '5px 11px',

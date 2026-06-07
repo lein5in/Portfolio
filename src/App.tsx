@@ -8,7 +8,6 @@ function App() {
   const [hasEntered,       setHasEntered]       = useState(false);
   const [portfolioMounted, setPortfolioMounted] = useState(false);
   const [isVisible,        setIsVisible]        = useState(false);
-
   const overlayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -16,53 +15,50 @@ function App() {
   }, []);
 
   const handleEnter = () => {
-    // 1. Fade entry screen to black
-    const overlay = overlayRef.current;
-    if (!overlay) return;
+    // EntryScreen handles its own fade to black (0.85s)
+    // We mount portfolio at ~700ms (black is fully opaque)
+    setTimeout(() => {
+      setHasEntered(true);
+      setPortfolioMounted(true);
+    }, 400);
 
-    gsap.to(overlay, {
-      opacity:  1,
-      duration: 0.55,
-      ease:     'power2.inOut',
-      onComplete: () => {
-        // 2. Mount portfolio (hidden under overlay)
-        setHasEntered(true);
-        setPortfolioMounted(true);
-
-        // 3. Short pause then fade overlay out → portfolio appears
-        gsap.to(overlay, {
+    // Then fade our overlay out — portfolio animates in underneath
+    setTimeout(() => {
+      if (overlayRef.current) {
+        gsap.to(overlayRef.current, {
           opacity:  0,
-          duration: 0.7,
-          delay:    0.15,
+          duration: 0.35,
           ease:     'power2.out',
           onComplete: () => {
             setIsVisible(true);
-            overlay.style.pointerEvents = 'none';
+            if (overlayRef.current) overlayRef.current.style.pointerEvents = 'none';
           },
         });
-      },
-    });
+      } else {
+        setIsVisible(true);
+      }
+    }, 550);
   };
 
   return (
     <LanguageProvider>
-      {/* Black transition overlay */}
+      {/* Transition overlay — starts opaque, fades out */}
       <div
         ref={overlayRef}
         style={{
-          position:       'fixed',
-          inset:          0,
-          background:     '#000000',
-          zIndex:         9999,
-          opacity:        0,
-          pointerEvents:  'none',
+          position:      'fixed',
+          inset:         0,
+          background:    '#0a0a0a',
+          zIndex:        9998,
+          opacity:       portfolioMounted ? 1 : 0,
+          pointerEvents: portfolioMounted ? 'all' : 'none',
         }}
       />
 
       {/* Entry screen */}
       {!hasEntered && <EntryScreen onEnter={handleEnter} />}
 
-      {/* Portfolio — mounted after enter, animated in by PortfolioLayout */}
+      {/* Portfolio */}
       {portfolioMounted && (
         <Portfolio isVisible={isVisible} />
       )}
