@@ -1,46 +1,46 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import GlobePortfolio, { type SectionId } from './GlobePortfolio';
+import type { SectionId } from '../../three/sections';
 
 gsap.registerPlugin(ScrollTrigger);
 
 // ─── SHARED STYLES ────────────────────────────────────────────────────────────
 
 export const mono: React.CSSProperties = {
-  fontFamily: "'DM Mono', monospace",
+  fontFamily: "'Space Mono', monospace",
 };
 
 export const sectionLabel: React.CSSProperties = {
-  fontFamily:    "'DM Mono', monospace",
+  fontFamily:    "'Space Mono', monospace",
   fontSize:      10,
   letterSpacing: '0.28em',
-  color:         'rgba(255,255,255,0.3)',
+  color:         'rgba(255,255,255,0.42)',
   textTransform: 'uppercase',
   marginBottom:  48,
 };
 
 export const bigTitle: React.CSSProperties = {
-  fontFamily:    "'Syne', sans-serif",
+  fontFamily:    "'Space Grotesk', sans-serif",
   fontSize:      'clamp(42px,5.5vw,72px)',
   lineHeight:    1.0,
   color:         '#ffffff',
-  fontWeight:    800,
+  fontWeight:    700,
   marginBottom:  24,
   letterSpacing: '-0.02em',
 };
 
 export const bodyText: React.CSSProperties = {
-  fontFamily: "'DM Mono', monospace",
-  fontSize:   13,
-  color:      'rgba(255,255,255,0.55)',
-  lineHeight: 1.9,
+  fontFamily: "'Space Mono', monospace",
+  fontSize:   13.5,
+  color:      'rgba(255,255,255,0.68)',
+  lineHeight: 1.95,
   fontWeight: 400,
   maxWidth:   480,
 };
 
 export const tag: React.CSSProperties = {
-  fontFamily:    "'DM Mono', monospace",
+  fontFamily:    "'Space Mono', monospace",
   fontSize:      10,
   color:         'rgba(255,255,255,0.45)',
   background:    'rgba(255,255,255,0.04)',
@@ -72,24 +72,23 @@ export function Fade({ children, delay = 0, style, className }: FadeProps) {
     const el = ref.current;
     if (!el) return;
 
-    // Start ghostlike — visible enough to feel like a reveal
-    gsap.set(el, { opacity: 0.15, y: 48 });
+    gsap.set(el, { opacity: 0.15, y: 48, filter: 'blur(6px)' });
 
     const st = ScrollTrigger.create({
       trigger:     el,
       start:       'top 92%',
       end:         'bottom 8%',
       onEnter: () => {
-        gsap.to(el, { opacity: 1, y: 0, duration: 0.7, delay, ease: 'power2.out' });
+        gsap.to(el, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.85, delay, ease: 'power3.out' });
       },
       onLeave: () => {
-        gsap.to(el, { opacity: 0.15, y: -24, duration: 0.5, ease: 'power2.in' });
+        gsap.to(el, { opacity: 0.15, y: -24, filter: 'blur(4px)', duration: 0.5, ease: 'power2.in' });
       },
       onEnterBack: () => {
-        gsap.to(el, { opacity: 1, y: 0, duration: 0.7, delay, ease: 'power2.out' });
+        gsap.to(el, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.85, delay, ease: 'power3.out' });
       },
       onLeaveBack: () => {
-        gsap.to(el, { opacity: 0.15, y: 48, duration: 0.5, ease: 'power2.in' });
+        gsap.to(el, { opacity: 0.15, y: 48, filter: 'blur(6px)', duration: 0.5, ease: 'power2.in' });
       },
     });
 
@@ -103,6 +102,123 @@ export function Fade({ children, delay = 0, style, className }: FadeProps) {
   );
 }
 
+// ─── REVEAL TEXT — two variants ─────────────────────────────────────────────
+// 'scramble' — for headlines/short lines: each character cycles through
+//   random glyphs before locking onto the real one, staggered left to right,
+//   like a signal decoding. Echoes the HUD/mono language from the entry
+//   screen (ALT · SPD · HDG).
+// 'focus'    — for longer prose: the whole block starts wide-tracked and
+//   blurred, then contracts to its resting letter-spacing while sharpening
+//   into focus — like a telescope finding its target. One motion, cheap,
+//   reads well even for long paragraphs where per-character scrambling
+//   would be noisy.
+
+const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+=-/<>';
+
+interface RevealTextProps {
+  text:          string;
+  as?:           'h1' | 'h2' | 'h3' | 'p' | 'span';
+  style?:        React.CSSProperties;
+  className?:    string;
+  variant?:      'scramble' | 'focus';
+  charStagger?:  number; // scramble only
+  delay?:        number;
+}
+
+export function RevealText({
+  text, as = 'p', style, className,
+  variant = 'focus', charStagger = 0.022, delay = 0,
+}: RevealTextProps) {
+  const ref = useRef<HTMLElement>(null);
+
+  // ── scramble ────────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (variant !== 'scramble') return;
+    const el = ref.current;
+    if (!el) return;
+    const chars = el.querySelectorAll<HTMLElement>('.rv-char');
+    const timers: Array<ReturnType<typeof setInterval>> = [];
+    const timeouts: Array<ReturnType<typeof setTimeout>> = [];
+    const clearAll = () => {
+      timers.forEach(clearInterval);
+      timeouts.forEach(clearTimeout);
+      timers.length = 0; timeouts.length = 0;
+    };
+
+    const run = () => {
+      clearAll();
+      gsap.set(el, { opacity: 1 });
+      chars.forEach((span, i) => {
+        const final = span.dataset.char ?? '';
+        if (final === ' ') { span.textContent = ' '; return; }
+        const iterations = 7 + Math.floor(Math.random() * 5);
+        let count = 0;
+        const t = window.setTimeout(() => {
+          const id = window.setInterval(() => {
+            span.textContent = SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+            count++;
+            if (count >= iterations) {
+              window.clearInterval(id);
+              span.textContent = final;
+            }
+          }, 32);
+          timers.push(id);
+        }, delay * 1000 + i * charStagger * 1000);
+        timeouts.push(t);
+      });
+    };
+    const reset = () => {
+      clearAll();
+      gsap.set(el, { opacity: 0.15 });
+      chars.forEach(span => { span.textContent = span.dataset.char === ' ' ? ' ' : ''; });
+    };
+
+    gsap.set(el, { opacity: 0.15 });
+    const st = ScrollTrigger.create({
+      trigger: el, start: 'top 90%', end: 'bottom 10%',
+      onEnter: run, onEnterBack: run, onLeave: reset, onLeaveBack: reset,
+    });
+    return () => { st.kill(); clearAll(); };
+  }, [text, variant, delay, charStagger]);
+
+  // ── focus ───────────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (variant !== 'focus') return;
+    const el = ref.current;
+    if (!el) return;
+
+    const restingSpacing = style?.letterSpacing ?? '0em';
+    gsap.set(el, { opacity: 0.12, filter: 'blur(9px)', letterSpacing: '0.3em' });
+
+    const st = ScrollTrigger.create({
+      trigger: el, start: 'top 90%', end: 'bottom 10%',
+      onEnter: () => gsap.to(el, { opacity: 1, filter: 'blur(0px)', letterSpacing: restingSpacing, duration: 1.0, delay, ease: 'power2.out' }),
+      onEnterBack: () => gsap.to(el, { opacity: 1, filter: 'blur(0px)', letterSpacing: restingSpacing, duration: 1.0, delay, ease: 'power2.out' }),
+      onLeave: () => gsap.to(el, { opacity: 0.15, filter: 'blur(5px)', letterSpacing: '0.15em', duration: 0.5, ease: 'power2.in' }),
+      onLeaveBack: () => gsap.to(el, { opacity: 0.12, filter: 'blur(9px)', letterSpacing: '0.3em', duration: 0.5, ease: 'power2.in' }),
+    });
+    return () => st.kill();
+  }, [text, variant, delay, style?.letterSpacing]);
+
+  const Tag = as as any;
+
+  if (variant === 'scramble') {
+    return (
+      <Tag ref={ref} style={style} className={className}>
+        {text.split('').map((c, i) => (
+          <span key={i} className="rv-char" data-char={c}>{'\u00A0'}</span>
+        ))}
+      </Tag>
+    );
+  }
+
+  return (
+    <Tag ref={ref} style={style} className={className}>
+      {text}
+    </Tag>
+  );
+}
+
 // ─── PROPS ────────────────────────────────────────────────────────────────────
 
 interface PortfolioLayoutProps {
@@ -111,41 +227,45 @@ interface PortfolioLayoutProps {
     setRef: (id: SectionId) => (el: HTMLElement | null) => void
   ) => React.ReactNode;
   isVisible?: boolean;
+  onActiveSectionChange?: (id: SectionId) => void;
 }
 
 // ─── LAYOUT ───────────────────────────────────────────────────────────────────
 
-export default function PortfolioLayout({ children, isVisible = true }: PortfolioLayoutProps) {
-  const [globeReady,    setGlobeReady]    = useState(false);
-  const [activeSection, setActiveSection] = useState<SectionId>('hero');
+export default function PortfolioLayout({ children, isVisible = true, onActiveSectionChange }: PortfolioLayoutProps) {
+  const activeSectionRef = useRef<SectionId>('hero');
 
-  const nameRef      = useRef<HTMLHeadingElement>(null);
-  const taglineRef   = useRef<HTMLParagraphElement>(null);
-  const linksRef     = useRef<HTMLDivElement>(null);
-  const socialsRef   = useRef<HTMLDivElement>(null);
-  const globeWrapRef = useRef<HTMLDivElement>(null);
+  const nameRef    = useRef<HTMLHeadingElement>(null);
+  const taglineRef = useRef<HTMLParagraphElement>(null);
+  const linksRef   = useRef<HTMLDivElement>(null);
+  const socialsRef = useRef<HTMLDivElement>(null);
 
   const sectionRefs = useRef<Record<SectionId, HTMLElement | null>>({
     hero: null, about: null, projects: null,
     skills: null, experience: null, contact: null,
   });
 
-  // ── Scroll spy ──────────────────────────────────────────────────────────────
+  // ── Scroll spy — bubbles the active section up to Universe via a callback ──
   useEffect(() => {
     const ids: SectionId[] = ['hero', 'about', 'projects', 'skills', 'experience', 'contact'];
     const onScroll = () => {
+      let next: SectionId = 'hero';
       for (let i = ids.length - 1; i >= 0; i--) {
         const el = sectionRefs.current[ids[i]];
         if (el && el.getBoundingClientRect().top <= window.innerHeight * 0.45) {
-          setActiveSection(ids[i]);
-          return;
+          next = ids[i];
+          break;
         }
       }
-      setActiveSection('hero');
+      if (next !== activeSectionRef.current) {
+        activeSectionRef.current = next;
+        onActiveSectionChange?.(next);
+      }
     };
     window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
     return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+  }, [onActiveSectionChange]);
 
   const setRef = useCallback(
     (id: SectionId) => (el: HTMLElement | null) => {
@@ -160,50 +280,35 @@ export default function PortfolioLayout({ children, isVisible = true }: Portfoli
 
   // ── GSAP entrance ────────────────────────────────────────────────────────────
   useEffect(() => {
-    if (!globeReady || !isVisible) return;
+    if (!isVisible) return;
 
     gsap.set([nameRef.current, taglineRef.current, linksRef.current, socialsRef.current], {
       opacity: 0.15, y: 0,
     });
-    gsap.set(globeWrapRef.current, { opacity: 0, x: 60, scale: 0.9 });
 
     const tl = gsap.timeline({ delay: 0.05 });
 
-    // Globe slides in
-    tl.to(globeWrapRef.current, {
-      opacity: 1, x: 0, scale: 1,
-      duration: 0.75, ease: 'power3.out',
-    }, 0);
-
-    // Name — cinematic reveal from below
     tl.fromTo(nameRef.current,
       { opacity: 0.15, y: 64 },
       { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' },
-      0.2
+      0
     );
-
-    // Tagline
     tl.fromTo(taglineRef.current,
       { opacity: 0.15, y: 28 },
       { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' },
-      0.65
+      0.35
     );
-
-    // CTAs
     tl.fromTo(linksRef.current,
       { opacity: 0.15, y: 16 },
       { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
-      0.82
+      0.55
     );
-
-    // Socials — fade only, no vertical movement
     tl.fromTo(socialsRef.current,
       { opacity: 0.15 },
       { opacity: 1, duration: 0.55, ease: 'power2.out' },
-      0.95
+      0.7
     );
-
-  }, [globeReady, isVisible]);
+  }, [isVisible]);
 
   // ── Cursor light ─────────────────────────────────────────────────────────────
   const cursorCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -244,10 +349,20 @@ export default function PortfolioLayout({ children, isVisible = true }: Portfoli
     <div style={{
       display:    'flex',
       minHeight:  '100vh',
-      background: '#0a0a0a',
       color:      '#fff',
       position:   'relative',
     }}>
+
+      {/* Readability scrim — guarantees the text column stays legible no
+          matter how bright the anchored planet gets behind it. Fixed so it
+          tracks the viewport rather than the (much taller) scrolling page. */}
+      <div className="pf-scrim" style={{
+        position:      'fixed',
+        inset:         0,
+        zIndex:        1,
+        pointerEvents: 'none',
+        background:    'linear-gradient(90deg, #0a0a0a 0%, rgba(10,10,10,0.9) 32%, rgba(10,10,10,0.5) 50%, rgba(10,10,10,0) 64%)',
+      }} />
 
       {/* Cursor light */}
       <canvas ref={cursorCanvasRef} style={{
@@ -255,28 +370,13 @@ export default function PortfolioLayout({ children, isVisible = true }: Portfoli
         pointerEvents: 'none', zIndex: 5, mixBlendMode: 'screen',
       }} />
 
-      {/* ── GLOBE ── */}
-      <div ref={globeWrapRef} style={{
-        position:      'fixed',
-        right:         0, top: 0,
-        width:         '52%',
-        height:        '100vh',
-        zIndex:        10,
-        opacity:       0,
-        pointerEvents: 'none',
-      }}>
-        <GlobePortfolio
-          activeSection={activeSection}
-          onReady={() => setGlobeReady(true)}
-        />
-      </div>
-
-      {/* ── LEFT CONTENT ── */}
-      <div style={{ width: '48%', minHeight: '100vh' }}>
+      {/* ── LEFT CONTENT ── (Universe, mounted at the App level, shows through on the right) */}
+      <div className="pf-left-col" style={{ width: '48%', minHeight: '100vh', position: 'relative', zIndex: 2 }}>
 
         {/* HERO */}
         <section
           ref={el => { sectionRefs.current['hero'] = el; }}
+          className="pf-hero-section"
           style={{
             minHeight:      '100vh',
             display:        'flex',
@@ -287,11 +387,11 @@ export default function PortfolioLayout({ children, isVisible = true }: Portfoli
         >
           {/* Name */}
           <h1 ref={nameRef} style={{
-            fontFamily:    "'Syne', sans-serif",
+            fontFamily:    "'Space Grotesk', sans-serif",
             fontSize:      'clamp(52px,7.5vw,104px)',
             lineHeight:    0.90,
             color:         '#ffffff',
-            fontWeight:    800,
+            fontWeight:    700,
             marginBottom:  0,
             letterSpacing: '-0.025em',
             opacity:       0.15,
@@ -303,7 +403,7 @@ export default function PortfolioLayout({ children, isVisible = true }: Portfoli
 
           {/* Tagline */}
           <p ref={taglineRef} style={{
-            fontFamily:   "'DM Mono', monospace",
+            fontFamily:   "'Space Mono', monospace",
             fontSize:     12,
             color:        'rgba(255,255,255,0.42)',
             lineHeight:   1.85,
@@ -340,7 +440,7 @@ export default function PortfolioLayout({ children, isVisible = true }: Portfoli
               { href: 'mailto:htour018@uottawa.ca',                                label: 'ML' },
             ].map(({ href, label }) => (
               <a key={href} href={href} target="_blank" rel="noopener noreferrer"
-                style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, letterSpacing: '0.14em', color: 'rgba(255,255,255,0.22)', textDecoration: 'none', transition: 'color 0.2s' }}
+                style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, letterSpacing: '0.14em', color: 'rgba(255,255,255,0.22)', textDecoration: 'none', transition: 'color 0.2s' }}
                 onMouseEnter={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.7)'; }}
                 onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.22)'; }}
               >
@@ -348,26 +448,16 @@ export default function PortfolioLayout({ children, isVisible = true }: Portfoli
               </a>
             ))}
             <div style={{ height: '0.5px', width: 40, background: 'rgba(255,255,255,0.08)' }} />
-            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, color: 'rgba(255,255,255,0.15)', letterSpacing: '0.12em' }}>
+            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: 'rgba(255,255,255,0.15)', letterSpacing: '0.12em' }}>
               Ottawa, ON
             </span>
           </div>
         </section>
 
-        {children(activeSection, setRef)}
+        {children('hero', setRef)}
 
       </div>
 
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; }
-        body { background: #0a0a0a; }
-        ::-webkit-scrollbar { width: 2px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
-        ::selection { background: rgba(255,255,255,0.15); }
-      `}</style>
     </div>
   );
 }
@@ -376,7 +466,7 @@ export default function PortfolioLayout({ children, isVisible = true }: Portfoli
 
 function ctaLink(): React.CSSProperties {
   return {
-    fontFamily:    "'DM Mono', monospace",
+    fontFamily:    "'Space Mono', monospace",
     fontSize:      11,
     letterSpacing: '0.2em',
     color:         'rgba(255,255,255,0.45)',

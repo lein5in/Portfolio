@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import emailjs from '@emailjs/browser';
 import { FaGithub, FaLinkedin, FaEnvelope, FaMapMarkerAlt, FaPaperPlane } from 'react-icons/fa';
-import { Fade, mono, sectionLabel, divider } from './PortfolioLayout';
-import type { SectionId } from './GlobePortfolio';
+import { Fade, RevealText, mono, sectionLabel, divider } from './PortfolioLayout';
+import type { SectionId } from '../../three/sections';
 
 // ─── COMPONENT ────────────────────────────────────────────────────────────────
 
@@ -39,9 +39,9 @@ export default function ContactSection({ setRef }: ContactSectionProps) {
 
   return (
     <>
-      <div style={divider} />
+      <div className="pf-divider" style={divider} />
 
-      <section ref={setRef('contact')} style={{ padding: '110px 64px 140px' }}>
+      <section ref={setRef('contact')} className="pf-section-pad" style={{ padding: '110px 64px 140px' }}>
 
         <Fade>
           <div style={sectionLabel}>Contact</div>
@@ -55,17 +55,23 @@ export default function ContactSection({ setRef }: ContactSectionProps) {
           } as React.CSSProperties}>
             Currently Available
           </div>
-          <h2 style={sectionTitle}>Make Contact.</h2>
+          <RevealText
+            as="h2"
+            text="Make contact."
+            variant="scramble"
+            className="pf-breakout"
+            style={{ ...sectionTitle, fontSize: 'clamp(52px,7vw,96px)', maxWidth: 'min(90vw, 820px)' }}
+          />
           <p style={{
-            fontFamily:   "'DM Mono', monospace",
-            fontSize:     12,
-            color:        'rgba(255,255,255,0.55)',
-            lineHeight:   1.9,
+            fontFamily:   "'Space Mono', monospace",
+            fontSize:     13,
+            color:        'rgba(255,255,255,0.66)',
+            lineHeight:   1.95,
             maxWidth:     400,
             marginBottom: 52,
           }}>
-            Open to Co-op opportunities, interesting projects,<br />
-            and conversations about software.
+            Open to Co-op opportunities, interesting problems,<br />
+            and good conversations about software.
           </p>
         </Fade>
 
@@ -185,7 +191,7 @@ export default function ContactSection({ setRef }: ContactSectionProps) {
                       {item.label}
                     </div>
                     <div style={{
-                      fontFamily: "'DM Mono', monospace",
+                      fontFamily: "'Space Mono', monospace",
                       fontSize:   12,
                       color:      'rgba(255,255,255,0.65)',
                     }}>
@@ -276,9 +282,9 @@ export default function ContactSection({ setRef }: ContactSectionProps) {
 // ─── STYLES ───────────────────────────────────────────────────────────────────
 
 const sectionTitle: React.CSSProperties = {
-  fontFamily:    "'Syne', sans-serif",
+  fontFamily:    "'Space Grotesk', sans-serif",
   fontSize:      'clamp(42px,5.5vw,72px)',
-  fontWeight:    800,
+  fontWeight:    700,
   color:         '#ffffff',
   lineHeight:    1.0,
   letterSpacing: '-0.025em',
@@ -286,7 +292,7 @@ const sectionTitle: React.CSSProperties = {
 };
 
 const labelStyle: React.CSSProperties = {
-  fontFamily:    "'DM Mono', monospace",
+  fontFamily:    "'Space Mono', monospace",
   fontSize:      8,
   color:         'rgba(255,255,255,0.45)',
   letterSpacing: '0.24em',
@@ -303,7 +309,7 @@ const inputStyle: React.CSSProperties = {
   padding:      '12px 14px',
   color:        'rgba(255,255,255,0.75)',
   fontSize:     13,
-  fontFamily:   "'DM Mono', monospace",
+  fontFamily:   "'Space Mono', monospace",
   outline:      'none',
   boxSizing:    'border-box',
   transition:   'border-color 0.2s',
@@ -314,7 +320,7 @@ const submitBtn: React.CSSProperties = {
   alignItems:     'center',
   justifyContent: 'center',
   gap:            8,
-  fontFamily:     "'DM Mono', monospace",
+  fontFamily:     "'Space Mono', monospace",
   fontSize:       10,
   letterSpacing:  '0.2em',
   padding:        '13px 28px',
@@ -330,7 +336,7 @@ const cvBtn: React.CSSProperties = {
   display:        'flex',
   alignItems:     'center',
   justifyContent: 'center',
-  fontFamily:     "'DM Mono', monospace",
+  fontFamily:     "'Space Mono', monospace",
   fontSize:       10,
   letterSpacing:  '0.2em',
   padding:        '13px',

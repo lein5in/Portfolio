@@ -1,27 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* ── CSS Variables ── */
-:root {
-  --bg:         #0d0d0d;
-  --bg-2:       #131313;
-  --bg-3:       #1a1a1a;
-  --bg-4:       #222222;
-
-  --text:       #ede9e0;
-  --text-muted: #b0a89f;
-  --text-faint: #706a63;
-
-  --accent:     #c4b896;
-  --accent-dim: rgba(196,184,150,0.12);
-
-  --border:     rgba(237,233,224,0.08);
-  --border-md:  rgba(237,233,224,0.16);
-  --border-lg:  rgba(237,233,224,0.26);
-}
 
 /* ── Reset ── */
 *, *::before, *::after {
@@ -33,177 +12,43 @@
 html { scroll-behavior: smooth; }
 
 body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Outfit', sans-serif;
-  font-size: 16px;
-  font-weight: 400;
+  background: #0a0a0a;
+  color: #ffffff;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
 
+:root {
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-mono:    'Space Mono', monospace;
+}
+
 /* ── Scrollbar ── */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border-md); border-radius: 6px; }
-::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+::-webkit-scrollbar { width: 2px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+::selection { background: rgba(255,255,255,0.15); }
 
-/* ── Typography ── */
-h1, h2, h3, h4 {
-  font-family: 'DM Serif Display', serif;
-  color: var(--text);
-  line-height: 1;
+/* ── Responsive layout ──────────────────────────────────────────────────────
+   The whole site is built with inline styles (deliberately — see project
+   notes), which always beat an external stylesheet on specificity. The
+   handful of rules below use !important on purpose: it's the only way to
+   let a breakpoint override an inline value, and it's scoped to exactly the
+   properties that need to change per screen size. Everything else keeps
+   working exactly as it does today above 860px. */
+@media (max-width: 860px) {
+  .pf-left-col      { width: 100% !important; }
+  .pf-section-pad   { padding: 64px 24px !important; }
+  .pf-hero-section  { padding: 0 24px 56px !important; min-height: 92vh !important; }
+  .pf-stats-grid    { grid-template-columns: 1fr !important; }
+  .pf-exp-grid      { grid-template-columns: 1fr !important; gap: 44px !important; }
+  .pf-skills-row    { grid-template-columns: 1fr !important; gap: 10px !important; }
+  .pf-skills-row > div:first-child { padding-top: 0 !important; }
+  .pf-divider       { margin: 0 24px !important; }
+  .pf-breakout      { width: min(94vw, 640px) !important; font-size: clamp(30px, 8vw, 44px) !important; }
+  .pf-scrim         { background: linear-gradient(180deg, #0a0a0a 62%, rgba(10,10,10,0.55) 100%) !important; }
+  .pf-universe-mount{ opacity: 0.32 !important; }
 }
-
-/* ── Section layout ── */
-section {
-  padding: 100px 0;
-}
-
-.section-container {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 40px;
-}
-
-.section-label {
-  font-family: 'DM Mono', monospace;
-  font-size: 11px;
-  color: var(--accent);
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  margin-bottom: 36px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.section-label::after {
-  content: '';
-  flex: 1;
-  height: 0.5px;
-  background: var(--border);
-}
-
-/* ── Divider ── */
-.divider {
-  height: 0.5px;
-  background: var(--border);
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
-/* ── Buttons ── */
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--accent);
-  color: #0d0d0d;
-  padding: 11px 26px;
-  border-radius: 3px;
-  border: none;
-  font-family: 'Outfit', sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  cursor: pointer;
-  text-decoration: none;
-  transition: opacity 0.2s;
-}
-
-.btn-primary:hover { opacity: 0.85; }
-
-.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: transparent;
-  color: var(--text-muted);
-  padding: 11px 26px;
-  border-radius: 3px;
-  border: 0.5px solid var(--border-md);
-  font-family: 'Outfit', sans-serif;
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  cursor: pointer;
-  text-decoration: none;
-  transition: color 0.2s, border-color 0.2s;
-}
-
-.btn-secondary:hover {
-  color: var(--text);
-  border-color: var(--border-lg);
-}
-
-/* ── Tags ── */
-.tag {
-  font-family: 'DM Mono', monospace;
-  font-size: 11px;
-  color: var(--accent);
-  background: var(--accent-dim);
-  border: 0.5px solid rgba(181,169,138,0.2);
-  padding: 4px 10px;
-  border-radius: 2px;
-  letter-spacing: 0.05em;
-  white-space: nowrap;
-}
-
-/* ── Pulse dot animation ── */
-.pulse-dot {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--accent);
-  animation: pulseDot 2.2s ease-in-out infinite;
-}
-
-@keyframes pulseDot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.35; transform: scale(0.8); }
-}
-
-/* ── Cursor blink ── */
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-
-
-/* ── Form inputs (dark, no browser override) ── */
-.field-input {
-  width: 100%;
-  background: var(--bg-3) !important;
-  border: 0.5px solid var(--border-md);
-  border-radius: 3px;
-  color: var(--text) !important;
-  font-family: 'Outfit', sans-serif;
-  font-size: 15px;
-  font-weight: 300;
-  padding: 14px 16px;
-  outline: none;
-  transition: border-color 0.2s, background 0.2s;
-  resize: none;
-  -webkit-appearance: none;
-  appearance: none;
-  display: block;
-}
-.field-input::placeholder { color: var(--text-faint); }
-.field-input:focus { border-color: var(--accent); background: var(--bg-4) !important; }
-.field-input:-webkit-autofill,
-.field-input:-webkit-autofill:hover,
-.field-input:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0px 1000px var(--bg-3) inset !important;
-  -webkit-text-fill-color: var(--text) !important;
-  caret-color: var(--text);
-}
-
-/* ── Mobile ── */
-@media (max-width: 768px) {
-  section { padding: 72px 0; }
-  .section-container { padding: 0 24px; }
+@media (max-width: 480px) {
+  .pf-section-pad { padding: 48px 18px !important; }
 }

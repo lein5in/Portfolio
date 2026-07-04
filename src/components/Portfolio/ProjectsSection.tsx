@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
-import { Fade, mono, sectionLabel, divider } from './PortfolioLayout';
-import type { SectionId } from './GlobePortfolio';
+import { Fade, RevealText, mono, sectionLabel, divider } from './PortfolioLayout';
+import type { SectionId } from '../../three/sections';
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
 
@@ -79,16 +79,14 @@ interface ProjectsSectionProps {
 export default function ProjectsSection({ setRef }: ProjectsSectionProps) {
   return (
     <>
-      <div style={divider} />
+      <div className="pf-divider" style={divider} />
 
-      <section ref={setRef('projects')} style={{ padding: '110px 64px' }}>
+      <section ref={setRef('projects')} className="pf-section-pad" style={{ padding: '110px 64px' }}>
 
         <Fade>
           <div style={sectionLabel}>Selected Projects</div>
-          <h2 style={sectionTitle}>
-            What I've<br />built.
-          </h2>
         </Fade>
+        <RevealText as="h2" text="What I've built." variant="scramble" style={sectionTitle} />
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           {projects.map((p, idx) => (
@@ -118,10 +116,10 @@ export default function ProjectsSection({ setRef }: ProjectsSectionProps) {
                     </span>
                     <div>
                       <h3 style={{
-                        fontFamily:    "'Syne', sans-serif",
+                        fontFamily:    "'Space Grotesk', sans-serif",
                         fontSize:      28,
                         color:         '#ffffff',
-                        fontWeight:    800,
+                        fontWeight:    700,
                         lineHeight:    1,
                         marginBottom:  6,
                         letterSpacing: '-0.02em',
@@ -168,10 +166,10 @@ export default function ProjectsSection({ setRef }: ProjectsSectionProps) {
 
                 {/* Summary */}
                 <p style={{
-                  fontFamily: "'DM Mono', monospace",
-                  fontSize:   14,
-                  color:      'rgba(255,255,255,0.55)',
-                  lineHeight: 1.85,
+                  fontFamily: "'Space Mono', monospace",
+                  fontSize:   14.5,
+                  color:      'rgba(255,255,255,0.68)',
+                  lineHeight: 1.9,
                   maxWidth:   520,
                   marginBottom: 16,
                 }}>
@@ -180,13 +178,13 @@ export default function ProjectsSection({ setRef }: ProjectsSectionProps) {
 
                 {/* Description */}
                 <p style={{
-                  fontFamily:  "'DM Mono', monospace",
-                  fontSize:    12,
-                  color:       'rgba(255,255,255,0.52)',
-                  lineHeight:  1.9,
+                  fontFamily:  "'Space Mono', monospace",
+                  fontSize:    12.5,
+                  color:       'rgba(255,255,255,0.62)',
+                  lineHeight:  1.95,
                   maxWidth:    520,
                   marginBottom: 24,
-                  borderLeft:  '1px solid rgba(255,255,255,0.07)',
+                  borderLeft:  '1px solid rgba(255,255,255,0.09)',
                   paddingLeft: 16,
                 }}>
                   {p.description}
@@ -205,7 +203,7 @@ export default function ProjectsSection({ setRef }: ProjectsSectionProps) {
                         —
                       </span>
                       <span style={{
-                        fontFamily: "'DM Mono', monospace",
+                        fontFamily: "'Space Mono', monospace",
                         fontSize:   12,
                         color:      'rgba(255,255,255,0.62)',
                         lineHeight: 1.75,
@@ -283,9 +281,9 @@ export default function ProjectsSection({ setRef }: ProjectsSectionProps) {
 // ─── STYLES ───────────────────────────────────────────────────────────────────
 
 const sectionTitle: React.CSSProperties = {
-  fontFamily:    "'Syne', sans-serif",
+  fontFamily:    "'Space Grotesk', sans-serif",
   fontSize:      'clamp(42px,5.5vw,72px)',
-  fontWeight:    800,
+  fontWeight:    700,
   color:         '#ffffff',
   lineHeight:    1.0,
   letterSpacing: '-0.025em',
@@ -293,7 +291,7 @@ const sectionTitle: React.CSSProperties = {
 };
 
 const techTag: React.CSSProperties = {
-  fontFamily:    "'DM Mono', monospace",
+  fontFamily:    "'Space Mono', monospace",
   fontSize:      11,
   color:         'rgba(255,255,255,0.72)',
   background:    'rgba(255,255,255,0.03)',
@@ -307,7 +305,7 @@ const linkStyle: React.CSSProperties = {
   display:       'flex',
   alignItems:    'center',
   gap:           6,
-  fontFamily:    "'DM Mono', monospace",
+  fontFamily:    "'Space Mono', monospace",
   fontSize:      12,
   letterSpacing: '0.14em',
   color:         'rgba(255,255,255,0.48)',
@@ -319,7 +317,7 @@ const githubCta: React.CSSProperties = {
   display:       'inline-flex',
   alignItems:    'center',
   gap:           8,
-  fontFamily:    "'DM Mono', monospace",
+  fontFamily:    "'Space Mono', monospace",
   fontSize:      12,
   letterSpacing: '0.18em',
   color:         'rgba(255,255,255,0.72)',

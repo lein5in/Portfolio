@@ -1,6 +1,6 @@
 import React from 'react';
-import { Fade, mono, sectionLabel, divider } from './PortfolioLayout';
-import type { SectionId } from './GlobePortfolio';
+import { Fade, RevealText, mono, sectionLabel, divider } from './PortfolioLayout';
+import type { SectionId } from '../../three/sections';
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
 
@@ -45,16 +45,14 @@ interface SkillsSectionProps {
 export default function SkillsSection({ setRef }: SkillsSectionProps) {
   return (
     <>
-      <div style={divider} />
+      <div className="pf-divider" style={divider} />
 
-      <section ref={setRef('skills')} style={{ padding: '110px 64px' }}>
+      <section ref={setRef('skills')} className="pf-section-pad" style={{ padding: '110px 64px' }}>
 
         <Fade>
           <div style={sectionLabel}>Skills</div>
-          <h2 style={sectionTitle}>
-            What I work<br />with.
-          </h2>
         </Fade>
+        <RevealText as="h2" text="What I work with." variant="scramble" style={sectionTitle} />
 
         {/* Skill groups */}
         <div style={{
@@ -65,7 +63,7 @@ export default function SkillsSection({ setRef }: SkillsSectionProps) {
         }}>
           {skillGroups.map((g, i) => (
             <Fade key={g.label} delay={i * 0.05}>
-              <div style={{
+              <div className="pf-skills-row" style={{
                 padding:      '24px 0',
                 display:      'grid',
                 gridTemplateColumns: '140px 1fr',
@@ -107,7 +105,7 @@ export default function SkillsSection({ setRef }: SkillsSectionProps) {
 
           {/* Soft skills row */}
           <Fade>
-            <div style={{
+            <div className="pf-skills-row" style={{
               padding:      '24px 0',
               display:      'grid',
               gridTemplateColumns: '140px 1fr',
@@ -126,7 +124,7 @@ export default function SkillsSection({ setRef }: SkillsSectionProps) {
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
                 {softSkills.map(s => (
                   <span key={s} style={{
-                    fontFamily:    "'DM Mono', monospace",
+                    fontFamily:    "'Space Mono', monospace",
                     fontSize:      11,
                     color:         'rgba(255,255,255,0.42)',
                     border:        '0.5px solid rgba(255,255,255,0.06)',
@@ -150,9 +148,9 @@ export default function SkillsSection({ setRef }: SkillsSectionProps) {
 // ─── STYLES ───────────────────────────────────────────────────────────────────
 
 const sectionTitle: React.CSSProperties = {
-  fontFamily:    "'Syne', sans-serif",
+  fontFamily:    "'Space Grotesk', sans-serif",
   fontSize:      'clamp(42px,5.5vw,72px)',
-  fontWeight:    800,
+  fontWeight:    700,
   color:         '#ffffff',
   lineHeight:    1.0,
   letterSpacing: '-0.025em',
@@ -160,7 +158,7 @@ const sectionTitle: React.CSSProperties = {
 };
 
 const skillTag: React.CSSProperties = {
-  fontFamily:    "'DM Mono', monospace",
+  fontFamily:    "'Space Mono', monospace",
   fontSize:      11,
   color:         'rgba(255,255,255,0.72)',
   background:    'transparent',

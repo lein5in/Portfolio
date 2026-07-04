@@ -1,12 +1,12 @@
 import React from 'react';
-import { Fade, mono, sectionLabel, divider } from './PortfolioLayout';
-import type { SectionId } from './GlobePortfolio';
+import { Fade, RevealText, mono, sectionLabel, divider } from './PortfolioLayout';
+import type { SectionId } from '../../three/sections';
 
 // ─── PHRASES ──────────────────────────────────────────────────────────────────
 
 const phrases = [
   {
-    text: "I didn't grow up with a computer science degree in mind. I grew up curious — about how things work, why they break, and what happens when you push them past their limits.",
+    text: "I didn't grow up dreaming of a computer science degree. I grew up curious — about how things work, why they break, and what happens when you push them past their limits.",
     size: 'large',
   },
   {
@@ -18,7 +18,7 @@ const phrases = [
     size: 'medium',
   },
   {
-    text: "I build across the stack — from CUDA inference pipelines to Chrome extensions to GLSL shaders — because I think the best engineers understand what's happening at every layer.",
+    text: "I build across the stack, from CUDA inference pipelines to Chrome extensions to GLSL shaders, because the engineers I admire most understand what's happening at every layer.",
     size: 'medium',
   },
   {
@@ -44,9 +44,9 @@ interface AboutSectionProps {
 export default function AboutSection({ setRef }: AboutSectionProps) {
   return (
     <>
-      <div style={divider} />
+      <div className="pf-divider" style={divider} />
 
-      <section ref={setRef('about')} style={{ padding: '110px 64px' }}>
+      <section ref={setRef('about')} className="pf-section-pad" style={{ padding: '110px 64px' }}>
 
         {/* Label */}
         <Fade>
@@ -56,17 +56,28 @@ export default function AboutSection({ setRef }: AboutSectionProps) {
         {/* Phrases */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 36, marginBottom: 80 }}>
           {phrases.map((p, i) => (
-            <Fade key={i} delay={i * 0.04}>
-              <p style={phraseStyle(p.size as 'large' | 'medium' | 'small')}>
-                {p.text}
-              </p>
-            </Fade>
+            p.size === 'small' ? (
+              <Fade key={i} delay={i * 0.04}>
+                <p style={phraseStyle('small')}>{p.text}</p>
+              </Fade>
+            ) : (
+              <RevealText
+                key={i}
+                as="p"
+                text={p.text}
+                delay={i * 0.03}
+                className={i === 0 ? 'pf-breakout' : undefined}
+                style={i === 0
+                  ? { ...phraseStyle('large'), maxWidth: 'min(78vw, 760px)', fontSize: 'clamp(26px,3.4vw,40px)' }
+                  : phraseStyle(p.size as 'large' | 'medium')}
+              />
+            )
           ))}
         </div>
 
         {/* Stats */}
         <Fade>
-          <div style={{
+          <div className="pf-stats-grid" style={{
             display:             'grid',
             gridTemplateColumns: 'repeat(3,1fr)',
             gap:                 1,
@@ -84,10 +95,10 @@ export default function AboutSection({ setRef }: AboutSectionProps) {
                 borderLeft:  i > 0 ? '0.5px solid rgba(255,255,255,0.06)' : 'none',
               }}>
                 <div style={{
-                  fontFamily:    "'Syne', sans-serif",
+                  fontFamily:    "'Space Grotesk', sans-serif",
                   fontSize:      40,
                   color:         '#ffffff',
-                  fontWeight:    800,
+                  fontWeight:    700,
                   lineHeight:    1,
                   marginBottom:  10,
                   letterSpacing: '-0.02em',
@@ -139,7 +150,7 @@ export default function AboutSection({ setRef }: AboutSectionProps) {
                     {label}
                   </span>
                   <span style={{
-                    fontFamily: "'DM Mono', monospace",
+                    fontFamily: "'Space Mono', monospace",
                     fontSize:   14,
                     color:      'rgba(255,255,255,0.5)',
                     fontWeight: 400,
@@ -169,7 +180,7 @@ function phraseStyle(size: 'large' | 'medium' | 'small'): React.CSSProperties {
   };
   if (size === 'large') return {
     ...base,
-    fontFamily:    "'Syne', sans-serif",
+    fontFamily:    "'Space Grotesk', sans-serif",
     fontSize:      'clamp(20px,2.4vw,28px)',
     fontWeight:    700,
     color:         'rgba(255,255,255,0.88)',
@@ -178,17 +189,17 @@ function phraseStyle(size: 'large' | 'medium' | 'small'): React.CSSProperties {
   };
   if (size === 'medium') return {
     ...base,
-    fontFamily: "'DM Mono', monospace",
-    fontSize:   14,
-    color:      'rgba(255,255,255,0.65)',
-    lineHeight: 1.85,
+    fontFamily: "'Space Mono', monospace",
+    fontSize:   14.5,
+    color:      'rgba(255,255,255,0.74)',
+    lineHeight: 1.9,
   };
   return {
     ...base,
-    fontFamily:    "'DM Mono', monospace",
+    fontFamily:    "'Space Mono', monospace",
     fontSize:      12,
     letterSpacing: '0.18em',
-    color:         'rgba(255,255,255,0.42)',
+    color:         'rgba(255,255,255,0.5)',
     textTransform: 'uppercase',
   };
 }

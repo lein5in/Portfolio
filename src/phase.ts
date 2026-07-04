@@ -1,0 +1,1 @@
+export type Phase = 'system' | 'zoomingEnter' | 'revealed' | 'toPortfolio' | 'portfolio';

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Fade, mono, sectionLabel, divider } from './PortfolioLayout';
-import type { SectionId } from './GlobePortfolio';
+import { Fade, RevealText, mono, sectionLabel, divider } from './PortfolioLayout';
+import type { SectionId } from '../../three/sections';
 
 // ─── COMPONENT ────────────────────────────────────────────────────────────────
 
@@ -11,18 +11,16 @@ interface ExperienceSectionProps {
 export default function ExperienceSection({ setRef }: ExperienceSectionProps) {
   return (
     <>
-      <div style={divider} />
+      <div className="pf-divider" style={divider} />
 
-      <section ref={setRef('experience')} style={{ padding: '110px 64px' }}>
+      <section ref={setRef('experience')} className="pf-section-pad" style={{ padding: '110px 64px' }}>
 
         <Fade>
           <div style={sectionLabel}>Experience & Education</div>
-          <h2 style={sectionTitle}>
-            Where I've<br />been.
-          </h2>
         </Fade>
+        <RevealText as="h2" text="Where I've been." variant="scramble" style={sectionTitle} />
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 52 }}>
+        <div className="pf-exp-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 52 }}>
 
           {/* ── WORK ── */}
           <div>
@@ -63,7 +61,7 @@ export default function ExperienceSection({ setRef }: ExperienceSectionProps) {
                     Jun 2025 — Oct 2025
                   </div>
                   <div style={{
-                    fontFamily:    "'Syne', sans-serif",
+                    fontFamily:    "'Space Grotesk', sans-serif",
                     fontSize:      16,
                     color:         '#ffffff',
                     fontWeight:    700,
@@ -110,7 +108,7 @@ export default function ExperienceSection({ setRef }: ExperienceSectionProps) {
                     Summer 2026
                   </div>
                   <div style={{
-                    fontFamily: "'DM Mono', monospace",
+                    fontFamily: "'Space Mono', monospace",
                     fontSize:   12,
                     color:      'rgba(255,255,255,0.48)',
                     fontStyle:  'italic',
@@ -161,7 +159,7 @@ export default function ExperienceSection({ setRef }: ExperienceSectionProps) {
                     Sep 2024 — Apr 2028
                   </div>
                   <div style={{
-                    fontFamily:    "'Syne', sans-serif",
+                    fontFamily:    "'Space Grotesk', sans-serif",
                     fontSize:      16,
                     color:         '#ffffff',
                     fontWeight:    700,
@@ -207,7 +205,7 @@ export default function ExperienceSection({ setRef }: ExperienceSectionProps) {
                     2017 — 2024
                   </div>
                   <div style={{
-                    fontFamily:    "'Syne', sans-serif",
+                    fontFamily:    "'Space Grotesk', sans-serif",
                     fontSize:      14,
                     color:         'rgba(255,255,255,0.45)',
                     fontWeight:    600,
@@ -255,7 +253,7 @@ export default function ExperienceSection({ setRef }: ExperienceSectionProps) {
             ].map(({ l, lv }) => (
               <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span style={{
-                  fontFamily: "'Syne', sans-serif",
+                  fontFamily: "'Space Grotesk', sans-serif",
                   fontSize:   14,
                   color:      'rgba(255,255,255,0.55)',
                   fontWeight: 600,
@@ -310,7 +308,7 @@ function Bullet({ text }: { text: string }) {
         —
       </span>
       <span style={{
-        fontFamily: "'DM Mono', monospace",
+        fontFamily: "'Space Mono', monospace",
         fontSize:   12,
         color:      'rgba(255,255,255,0.58)',
         lineHeight: 1.75,
@@ -324,9 +322,9 @@ function Bullet({ text }: { text: string }) {
 // ─── STYLES ───────────────────────────────────────────────────────────────────
 
 const sectionTitle: React.CSSProperties = {
-  fontFamily:    "'Syne', sans-serif",
+  fontFamily:    "'Space Grotesk', sans-serif",
   fontSize:      'clamp(42px,5.5vw,72px)',
-  fontWeight:    800,
+  fontWeight:    700,
   color:         '#ffffff',
   lineHeight:    1.0,
   letterSpacing: '-0.025em',
@@ -334,7 +332,7 @@ const sectionTitle: React.CSSProperties = {
 };
 
 const techTag: React.CSSProperties = {
-  fontFamily:    "'DM Mono', monospace",
+  fontFamily:    "'Space Mono', monospace",
   fontSize:      11,
   color:         'rgba(255,255,255,0.52)',
   background:    'transparent',
