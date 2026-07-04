@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import emailjs from '@emailjs/browser';
 import { FaGithub, FaLinkedin, FaEnvelope, FaMapMarkerAlt, FaPaperPlane } from 'react-icons/fa';
-import { Fade, RevealText, mono, sectionLabel, divider } from './PortfolioLayout';
+import { Fade, mono, sectionLabel, divider } from './PortfolioLayout';
 import type { SectionId } from '../../three/sections';
 
 // ─── COMPONENT ────────────────────────────────────────────────────────────────
@@ -55,13 +55,9 @@ export default function ContactSection({ setRef }: ContactSectionProps) {
           } as React.CSSProperties}>
             Currently Available
           </div>
-          <RevealText
-            as="h2"
-            text="Make contact."
-            variant="scramble"
-            className="pf-breakout"
-            style={{ ...sectionTitle, fontSize: 'clamp(52px,7vw,96px)', maxWidth: 'min(90vw, 820px)' }}
-          />
+          <h2 className="pf-breakout" style={{ ...sectionTitle, fontSize: 'clamp(52px,7vw,96px)', maxWidth: 'min(90vw, 820px)' }}>
+            Make contact.
+          </h2>
           <p style={{
             fontFamily:   "'Space Mono', monospace",
             fontSize:     13,

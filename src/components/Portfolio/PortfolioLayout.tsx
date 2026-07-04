@@ -72,23 +72,23 @@ export function Fade({ children, delay = 0, style, className }: FadeProps) {
     const el = ref.current;
     if (!el) return;
 
-    gsap.set(el, { opacity: 0.15, y: 48, filter: 'blur(6px)' });
+    gsap.set(el, { opacity: 0.15, y: 48 });
 
     const st = ScrollTrigger.create({
       trigger:     el,
       start:       'top 92%',
       end:         'bottom 8%',
       onEnter: () => {
-        gsap.to(el, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.85, delay, ease: 'power3.out' });
+        gsap.to(el, { opacity: 1, y: 0, duration: 0.7, delay, ease: 'power2.out' });
       },
       onLeave: () => {
-        gsap.to(el, { opacity: 0.15, y: -24, filter: 'blur(4px)', duration: 0.5, ease: 'power2.in' });
+        gsap.to(el, { opacity: 0.15, y: -24, duration: 0.5, ease: 'power2.in' });
       },
       onEnterBack: () => {
-        gsap.to(el, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.85, delay, ease: 'power3.out' });
+        gsap.to(el, { opacity: 1, y: 0, duration: 0.7, delay, ease: 'power2.out' });
       },
       onLeaveBack: () => {
-        gsap.to(el, { opacity: 0.15, y: 48, filter: 'blur(6px)', duration: 0.5, ease: 'power2.in' });
+        gsap.to(el, { opacity: 0.15, y: 48, duration: 0.5, ease: 'power2.in' });
       },
     });
 
@@ -99,123 +99,6 @@ export function Fade({ children, delay = 0, style, className }: FadeProps) {
     <div ref={ref} style={style} className={className}>
       {children}
     </div>
-  );
-}
-
-// ─── REVEAL TEXT — two variants ─────────────────────────────────────────────
-// 'scramble' — for headlines/short lines: each character cycles through
-//   random glyphs before locking onto the real one, staggered left to right,
-//   like a signal decoding. Echoes the HUD/mono language from the entry
-//   screen (ALT · SPD · HDG).
-// 'focus'    — for longer prose: the whole block starts wide-tracked and
-//   blurred, then contracts to its resting letter-spacing while sharpening
-//   into focus — like a telescope finding its target. One motion, cheap,
-//   reads well even for long paragraphs where per-character scrambling
-//   would be noisy.
-
-const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+=-/<>';
-
-interface RevealTextProps {
-  text:          string;
-  as?:           'h1' | 'h2' | 'h3' | 'p' | 'span';
-  style?:        React.CSSProperties;
-  className?:    string;
-  variant?:      'scramble' | 'focus';
-  charStagger?:  number; // scramble only
-  delay?:        number;
-}
-
-export function RevealText({
-  text, as = 'p', style, className,
-  variant = 'focus', charStagger = 0.022, delay = 0,
-}: RevealTextProps) {
-  const ref = useRef<HTMLElement>(null);
-
-  // ── scramble ────────────────────────────────────────────────────────────
-  useEffect(() => {
-    if (variant !== 'scramble') return;
-    const el = ref.current;
-    if (!el) return;
-    const chars = el.querySelectorAll<HTMLElement>('.rv-char');
-    const timers: Array<ReturnType<typeof setInterval>> = [];
-    const timeouts: Array<ReturnType<typeof setTimeout>> = [];
-    const clearAll = () => {
-      timers.forEach(clearInterval);
-      timeouts.forEach(clearTimeout);
-      timers.length = 0; timeouts.length = 0;
-    };
-
-    const run = () => {
-      clearAll();
-      gsap.set(el, { opacity: 1 });
-      chars.forEach((span, i) => {
-        const final = span.dataset.char ?? '';
-        if (final === ' ') { span.textContent = ' '; return; }
-        const iterations = 7 + Math.floor(Math.random() * 5);
-        let count = 0;
-        const t = window.setTimeout(() => {
-          const id = window.setInterval(() => {
-            span.textContent = SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
-            count++;
-            if (count >= iterations) {
-              window.clearInterval(id);
-              span.textContent = final;
-            }
-          }, 32);
-          timers.push(id);
-        }, delay * 1000 + i * charStagger * 1000);
-        timeouts.push(t);
-      });
-    };
-    const reset = () => {
-      clearAll();
-      gsap.set(el, { opacity: 0.15 });
-      chars.forEach(span => { span.textContent = span.dataset.char === ' ' ? ' ' : ''; });
-    };
-
-    gsap.set(el, { opacity: 0.15 });
-    const st = ScrollTrigger.create({
-      trigger: el, start: 'top 90%', end: 'bottom 10%',
-      onEnter: run, onEnterBack: run, onLeave: reset, onLeaveBack: reset,
-    });
-    return () => { st.kill(); clearAll(); };
-  }, [text, variant, delay, charStagger]);
-
-  // ── focus ───────────────────────────────────────────────────────────────
-  useEffect(() => {
-    if (variant !== 'focus') return;
-    const el = ref.current;
-    if (!el) return;
-
-    const restingSpacing = style?.letterSpacing ?? '0em';
-    gsap.set(el, { opacity: 0.12, filter: 'blur(9px)', letterSpacing: '0.3em' });
-
-    const st = ScrollTrigger.create({
-      trigger: el, start: 'top 90%', end: 'bottom 10%',
-      onEnter: () => gsap.to(el, { opacity: 1, filter: 'blur(0px)', letterSpacing: restingSpacing, duration: 1.0, delay, ease: 'power2.out' }),
-      onEnterBack: () => gsap.to(el, { opacity: 1, filter: 'blur(0px)', letterSpacing: restingSpacing, duration: 1.0, delay, ease: 'power2.out' }),
-      onLeave: () => gsap.to(el, { opacity: 0.15, filter: 'blur(5px)', letterSpacing: '0.15em', duration: 0.5, ease: 'power2.in' }),
-      onLeaveBack: () => gsap.to(el, { opacity: 0.12, filter: 'blur(9px)', letterSpacing: '0.3em', duration: 0.5, ease: 'power2.in' }),
-    });
-    return () => st.kill();
-  }, [text, variant, delay, style?.letterSpacing]);
-
-  const Tag = as as any;
-
-  if (variant === 'scramble') {
-    return (
-      <Tag ref={ref} style={style} className={className}>
-        {text.split('').map((c, i) => (
-          <span key={i} className="rv-char" data-char={c}>{'\u00A0'}</span>
-        ))}
-      </Tag>
-    );
-  }
-
-  return (
-    <Tag ref={ref} style={style} className={className}>
-      {text}
-    </Tag>
   );
 }
 

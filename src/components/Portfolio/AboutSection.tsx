@@ -1,5 +1,5 @@
 import React from 'react';
-import { Fade, RevealText, mono, sectionLabel, divider } from './PortfolioLayout';
+import { Fade, mono, sectionLabel, divider } from './PortfolioLayout';
 import type { SectionId } from '../../three/sections';
 
 // ─── PHRASES ──────────────────────────────────────────────────────────────────
@@ -56,22 +56,16 @@ export default function AboutSection({ setRef }: AboutSectionProps) {
         {/* Phrases */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 36, marginBottom: 80 }}>
           {phrases.map((p, i) => (
-            p.size === 'small' ? (
-              <Fade key={i} delay={i * 0.04}>
-                <p style={phraseStyle('small')}>{p.text}</p>
-              </Fade>
-            ) : (
-              <RevealText
-                key={i}
-                as="p"
-                text={p.text}
-                delay={i * 0.03}
+            <Fade key={i} delay={i * 0.04}>
+              <p
                 className={i === 0 ? 'pf-breakout' : undefined}
                 style={i === 0
                   ? { ...phraseStyle('large'), maxWidth: 'min(78vw, 760px)', fontSize: 'clamp(26px,3.4vw,40px)' }
-                  : phraseStyle(p.size as 'large' | 'medium')}
-              />
-            )
+                  : phraseStyle(p.size as 'large' | 'medium' | 'small')}
+              >
+                {p.text}
+              </p>
+            </Fade>
           ))}
         </div>
 

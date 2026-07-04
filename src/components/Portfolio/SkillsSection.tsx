@@ -1,5 +1,5 @@
 import React from 'react';
-import { Fade, RevealText, mono, sectionLabel, divider } from './PortfolioLayout';
+import { Fade, mono, sectionLabel, divider } from './PortfolioLayout';
 import type { SectionId } from '../../three/sections';
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
@@ -51,8 +51,10 @@ export default function SkillsSection({ setRef }: SkillsSectionProps) {
 
         <Fade>
           <div style={sectionLabel}>Skills</div>
+          <h2 style={sectionTitle}>
+            What I work<br />with.
+          </h2>
         </Fade>
-        <RevealText as="h2" text="What I work with." variant="scramble" style={sectionTitle} />
 
         {/* Skill groups */}
         <div style={{

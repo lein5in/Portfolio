@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
-import { Fade, RevealText, mono, sectionLabel, divider } from './PortfolioLayout';
+import { Fade, mono, sectionLabel, divider } from './PortfolioLayout';
 import type { SectionId } from '../../three/sections';
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
@@ -85,8 +85,10 @@ export default function ProjectsSection({ setRef }: ProjectsSectionProps) {
 
         <Fade>
           <div style={sectionLabel}>Selected Projects</div>
+          <h2 style={sectionTitle}>
+            What I've<br />built.
+          </h2>
         </Fade>
-        <RevealText as="h2" text="What I've built." variant="scramble" style={sectionTitle} />
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           {projects.map((p, idx) => (

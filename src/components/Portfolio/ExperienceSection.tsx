@@ -1,5 +1,5 @@
 import React from 'react';
-import { Fade, RevealText, mono, sectionLabel, divider } from './PortfolioLayout';
+import { Fade, mono, sectionLabel, divider } from './PortfolioLayout';
 import type { SectionId } from '../../three/sections';
 
 // ─── COMPONENT ────────────────────────────────────────────────────────────────
@@ -17,8 +17,10 @@ export default function ExperienceSection({ setRef }: ExperienceSectionProps) {
 
         <Fade>
           <div style={sectionLabel}>Experience & Education</div>
+          <h2 style={sectionTitle}>
+            Where I've<br />been.
+          </h2>
         </Fade>
-        <RevealText as="h2" text="Where I've been." variant="scramble" style={sectionTitle} />
 
         <div className="pf-exp-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 52 }}>
 
