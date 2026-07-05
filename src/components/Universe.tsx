@@ -8,6 +8,7 @@ import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { createEarth } from '../three/createEarth';
 import { createSun } from '../three/sun';
+import { createCometSystem } from '../three/comets';
 import { PLANETS, EARTH_DEF, createProceduralPlanet, orbitPosition, buildOrbitRing, type PlanetDef } from '../three/planets';
 import { SECTION_LIGHTS } from '../three/sectionLights';
 import { collectFadeTargets } from '../three/fade';
@@ -194,6 +195,9 @@ export default function Universe({ phase, activeSection, onReady, onEnterZoomCom
     buildNebulaSprite('rgba(40,90,160,0.45)',  60, -18, -110, 150, 0.3);
     buildNebulaSprite('rgba(160,90,60,0.35)', -30, -30, -70, 90, 0.22);
 
+    const comets = createCometSystem();
+    scene.add(comets.group);
+
     // ── Planets (always present — this IS the background AND the hero) ────
     const bodies: Body[] = [];
     const orbitLines: { line: THREE.Line; isHero: boolean }[] = [];
@@ -368,8 +372,13 @@ export default function Universe({ phase, activeSection, onReady, onEnterZoomCom
     // ── Animation loop ──────────────────────────────────────────────────
     let animId = 0;
     const clockStart = performance.now();
+    let lastFrame = clockStart;
     const animate = () => {
       animId = requestAnimationFrame(animate);
+      const now = performance.now();
+      const dt  = Math.min(0.1, (now - lastFrame) / 1000); // clamp guards against tab-switch jumps
+      lastFrame = now;
+
       for (const b of bodies) {
         if (!b.frozen) {
           b.angle += b.speed;
@@ -377,7 +386,8 @@ export default function Universe({ phase, activeSection, onReady, onEnterZoomCom
         }
         b.update();
       }
-      sun.update((performance.now() - clockStart) / 1000);
+      sun.update((now - clockStart) / 1000);
+      comets.update(dt);
       camera.lookAt(lookAtTarget);
 
       currentLightColor.lerp(targetLightColor, 0.02);
