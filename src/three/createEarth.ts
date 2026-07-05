@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { rimVert, rimFrag } from './shaders';
 
 // ─── TEXTURES ─────────────────────────────────────────────────────────────────
 
@@ -9,12 +8,12 @@ function buildCloudTexture(): THREE.CanvasTexture {
   cv.width = w; cv.height = h;
   const cx = cv.getContext('2d')!;
   cx.clearRect(0, 0, w, h);
-  for (let i = 0; i < 420; i++) {
+  for (let i = 0; i < 260; i++) {
     const x = Math.random() * w;
     const y = Math.random() * h;
-    const r = 18 + Math.random() * 80;
+    const r = 14 + Math.random() * 52;
     const g = cx.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0, `rgba(255,255,255,${0.25 + Math.random() * 0.35})`);
+    g.addColorStop(0, `rgba(255,255,255,${0.16 + Math.random() * 0.24})`);
     g.addColorStop(1, 'rgba(255,255,255,0)');
     cx.beginPath();
     cx.arc(x, y, r, 0, Math.PI * 2);
@@ -31,15 +30,15 @@ export interface EarthHandle {
   earth:     THREE.Mesh;
   clouds:    THREE.Mesh;
   nightMesh: THREE.Mesh;
-  atmosphere: THREE.Mesh<THREE.SphereGeometry, THREE.ShaderMaterial>;
   /** Advance rotation by one frame. */
   update: () => void;
 }
 
 /**
  * Builds a photorealistic Earth (blue marble + specular water + procedural
- * clouds + atmosphere rim shader + night city lights), scaled to `radius`.
- * Shared by the solar system entry scene and the portfolio's anchored globe.
+ * clouds + night city lights), scaled to `radius`. Shared by the solar
+ * system entry scene and the portfolio's anchored globe. No atmosphere/rim
+ * glow — that shell was removed everywhere per design direction.
  */
 export function createEarth(radius = 1): EarthHandle {
   const group = new THREE.Group();
@@ -55,29 +54,13 @@ export function createEarth(radius = 1): EarthHandle {
   earth.rotation.x = 0.12;
   group.add(earth);
 
-  // Clouds
+  // Clouds — thinner, wispier layer
   const clouds = new THREE.Mesh(
     new THREE.SphereGeometry(radius * 1.012, 96, 96),
-    new THREE.MeshPhongMaterial({ map: buildCloudTexture(), transparent: true, opacity: 0.38, depthWrite: false })
+    new THREE.MeshPhongMaterial({ map: buildCloudTexture(), transparent: true, opacity: 0.24, depthWrite: false })
   );
   clouds.rotation.x = 0.12;
   group.add(clouds);
-
-  // Atmosphere (rim glow)
-  const atmosphere = new THREE.Mesh(
-    new THREE.SphereGeometry(radius * 1.03, 96, 96),
-    new THREE.ShaderMaterial({
-      vertexShader:   rimVert,
-      fragmentShader: rimFrag,
-      uniforms: {
-        uColor:   { value: new THREE.Color(0x2673f2) },
-        uOpacity: { value: 0.2 },
-        uPower:   { value: 10.0 },
-      },
-      side: THREE.BackSide, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false,
-    })
-  );
-  group.add(atmosphere);
 
   // Night lights
   const nightMat = new THREE.MeshPhongMaterial({
@@ -97,5 +80,5 @@ export function createEarth(radius = 1): EarthHandle {
     nightMesh.rotation.y = earth.rotation.y;
   };
 
-  return { group, earth, clouds, nightMesh, atmosphere, update };
+  return { group, earth, clouds, nightMesh, update };
 }

@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { rimVert, rimFrag } from './shaders';
 import type { SectionId } from './sections';
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
@@ -321,18 +320,6 @@ export function createProceduralPlanet(def: PlanetDef, radiusOverride?: number):
   const mesh = new THREE.Mesh(new THREE.SphereGeometry(r, 48, 48), mat);
   mesh.rotation.x = 0.15 + Math.random() * 0.12;
   group.add(mesh);
-
-  const glowMat = new THREE.ShaderMaterial({
-    vertexShader:   rimVert,
-    fragmentShader: rimFrag,
-    uniforms: {
-      uColor:   { value: new THREE.Color(def.glowColor) },
-      uOpacity: { value: 0.16 },
-      uPower:   { value: 9.0 },
-    },
-    side: THREE.BackSide, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false,
-  });
-  group.add(new THREE.Mesh(new THREE.SphereGeometry(r * 1.14, 48, 48), glowMat));
 
   if (def.hasRing) {
     const ringGeo = new THREE.RingGeometry(r * 1.55, r * 2.15, 64);

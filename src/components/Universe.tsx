@@ -107,7 +107,7 @@ export default function Universe({ phase, activeSection, onReady, onEnterZoomCom
 
     const scene  = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(50, mount.clientWidth / mount.clientHeight, 0.1, 300);
-    camera.position.set(0, 5.6, 15.5);
+    camera.position.set(0, 4.4, 12.5);
     const lookAtTarget = new THREE.Vector3(0, 0, 0);
     camera.lookAt(lookAtTarget);
 
@@ -156,17 +156,47 @@ export default function Universe({ phase, activeSection, onReady, onEnterZoomCom
     sun.mesh.layers.enable(BLOOM_SCENE);
     scene.add(sun.mesh);
 
-    // ── Starfield ────────────────────────────────────────────────────────
-    const starPos = new Float32Array(3200 * 3);
+    // ── Starfield — denser, with a handful of larger "feature" stars ───────
+    const starPos = new Float32Array(4600 * 3);
     for (let i = 0; i < starPos.length; i++) starPos[i] = (Math.random() - 0.5) * 160;
     const starGeo = new THREE.BufferGeometry();
     starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
     const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.05, transparent: true, opacity: 0.75 }));
     scene.add(stars);
 
+    const bigStarPos = new Float32Array(140 * 3);
+    for (let i = 0; i < bigStarPos.length; i++) bigStarPos[i] = (Math.random() - 0.5) * 140;
+    const bigStarGeo = new THREE.BufferGeometry();
+    bigStarGeo.setAttribute('position', new THREE.BufferAttribute(bigStarPos, 3));
+    const bigStars = new THREE.Points(bigStarGeo, new THREE.PointsMaterial({ color: 0xdbe8ff, size: 0.16, transparent: true, opacity: 0.55, sizeAttenuation: true }));
+    scene.add(bigStars);
+
+    // ── Nebula — a couple of huge, very soft tinted sprites far behind the
+    // system. Purely decorative: breaks up the dead-black gaps in the wide
+    // establishing shot without competing with the planets for attention.
+    function buildNebulaSprite(color: string, x: number, y: number, z: number, scale: number, opacity: number) {
+      const cv = document.createElement('canvas');
+      cv.width = 512; cv.height = 512;
+      const cx = cv.getContext('2d')!;
+      const g = cx.createRadialGradient(256, 256, 0, 256, 256, 256);
+      g.addColorStop(0, color);
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      cx.fillStyle = g;
+      cx.fillRect(0, 0, 512, 512);
+      const tex = new THREE.CanvasTexture(cv);
+      const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, opacity, depthWrite: false, blending: THREE.AdditiveBlending });
+      const sprite = new THREE.Sprite(mat);
+      sprite.position.set(x, y, z);
+      sprite.scale.set(scale, scale, 1);
+      scene.add(sprite);
+    }
+    buildNebulaSprite('rgba(90,70,160,0.5)',  -55, 22, -90, 130, 0.35);
+    buildNebulaSprite('rgba(40,90,160,0.45)',  60, -18, -110, 150, 0.3);
+    buildNebulaSprite('rgba(160,90,60,0.35)', -30, -30, -70, 90, 0.22);
+
     // ── Planets (always present — this IS the background AND the hero) ────
     const bodies: Body[] = [];
-    const orbitLines: THREE.Line[] = [];
+    const orbitLines: { line: THREE.Line; isHero: boolean }[] = [];
 
     const earthHandle = createEarth(EARTH_DEF.size);
     scene.add(earthHandle.group);
@@ -181,7 +211,7 @@ export default function Universe({ phase, activeSection, onReady, onEnterZoomCom
     for (const def of PLANETS) {
       const ring = buildOrbitRing(def);
       scene.add(ring);
-      orbitLines.push(ring);
+      orbitLines.push({ line: ring, isHero: def.id === 'hero' });
     }
 
     // ── Post-processing ──────────────────────────────────────────────────
@@ -264,7 +294,7 @@ export default function Universe({ phase, activeSection, onReady, onEnterZoomCom
         if (b.isEarth) continue;
         for (const t of collectFadeTargets(b.group)) tl.to(t.obj, { [t.key]: 0, duration: 1.3, ease: 'power2.in' }, 0.15);
       }
-      for (const line of orbitLines) tl.to(line.material as THREE.LineBasicMaterial, { opacity: 0, duration: 1.0 }, 0.05);
+      for (const { line } of orbitLines) tl.to(line.material as THREE.LineBasicMaterial, { opacity: 0, duration: 1.0 }, 0.05);
       tl.to(sun.material.uniforms.uOpacity, { value: 0, duration: 1.1 }, 0.1);
       tl.to(stars.material as THREE.PointsMaterial, { opacity: 0.2, duration: 1.6 }, 0.1);
     };
@@ -288,7 +318,12 @@ export default function Universe({ phase, activeSection, onReady, onEnterZoomCom
         b.frozen = false;
         dimGroup(b.group, 0.5, 0.15, 1.4);
       }
-      for (const line of orbitLines) tl.to(line.material as THREE.LineBasicMaterial, { opacity: 0.05, duration: 1.4 }, 0);
+      for (const { line, isHero } of orbitLines) {
+        if (isHero) continue; // Earth's own ring stays hidden forever — this
+        // close to the camera it would read as a line slicing across the
+        // globe, which is exactly the artifact this guards against.
+        tl.to(line.material as THREE.LineBasicMaterial, { opacity: 0.05, duration: 1.4 }, 0);
+      }
       // Sun stays hidden from here on — it already faded out during
       // zoomToHero. Its light (fillLight, a separate PointLight at the
       // origin) keeps warming the planets from that direction, but the
@@ -316,12 +351,14 @@ export default function Universe({ phase, activeSection, onReady, onEnterZoomCom
 
       tl.to(camera.position, { x: camPos.x, y: camPos.y, z: camPos.z, duration: 1.75, ease: 'expo.inOut' }, 0);
       tl.to(lookAtTarget,     { x: lookAt.x, y: lookAt.y, z: lookAt.z, duration: 1.75, ease: 'expo.inOut' }, 0);
-      tl.call(() => {
-        dimGroup(oldBody.group, 0.5, 0.15, 1.0);
-        for (const t of collectFadeTargets(newBody.group)) {
-          gsap.to(t.obj, { [t.key]: t.key === 'value' ? 0.3 : 1, duration: 1.0, ease: 'power2.out' });
-        }
-      }, [], 0.45);
+      // Starts immediately alongside the camera move (not delayed) so the
+      // planet swap reads in sync with the text, which changes on its own
+      // scroll-driven trigger — staggering them was the source of the felt
+      // "lag" between the two.
+      dimGroup(oldBody.group, 0.5, 0.15, 1.0);
+      for (const t of collectFadeTargets(newBody.group)) {
+        gsap.to(t.obj, { [t.key]: t.key === 'value' ? 0.3 : 1, duration: 1.0, ease: 'power2.out' });
+      }
     };
 
     apiRef.current = { zoomToHero, transitionToPortfolio, flyToSection };
