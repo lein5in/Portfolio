@@ -1,6 +1,7 @@
 import React from 'react';
 import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
 import { Fade, mono, sectionLabel, divider } from './PortfolioLayout';
+import ProjectGallery from './ProjectGallery';
 import type { SectionId } from '../../three/sections';
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
@@ -27,6 +28,7 @@ const projects = [
     tech: ['Python', 'Claude Sonnet 4.6', 'Claude Haiku', 'Whisper (CUDA)', 'Fish Audio', 'PyQt5', 'Selenium', 'Fernet'],
     github: 'https://github.com/lein5in/MARA',
     live: null,
+    images: ['/mara1.png', '/mara2.png'],
   },
   {
     num: '02',
@@ -47,6 +49,7 @@ const projects = [
     tech: ['React', 'TypeScript', 'FastAPI', 'Claude API', 'PostgreSQL', 'Chrome MV3', 'JWT', 'SQLAlchemy'],
     github: 'https://github.com/lein5in/Seren',
     live: null,
+    images: ['/seren1.png', '/seren2.png', '/seren3.png'],
   },
   {
     num: '03',
@@ -67,6 +70,7 @@ const projects = [
     tech: ['React', 'TypeScript', 'Three.js', 'GLSL', 'GSAP', 'Vite', 'EmailJS'],
     github: 'https://github.com/lein5in/Portfolio',
     live: null,
+    images: [] as string[],
   },
 ];
 
@@ -229,7 +233,10 @@ export default function ProjectsSection({ setRef }: ProjectsSectionProps) {
                       <span key={t} style={techTag}>{t}</span>
                     ))}
                   </div>
-                  <div style={{ display: 'flex', gap: 24 }}>
+                  <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
+                    {p.images && p.images.length > 0 && (
+                      <ProjectGallery images={p.images} />
+                    )}
                     {p.github && (
                       <a
                         href={p.github}

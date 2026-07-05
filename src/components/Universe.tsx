@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { gsap } from 'gsap';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
@@ -18,6 +18,7 @@ import type { Phase } from '../phase';
 interface UniverseProps {
   phase: Phase;
   activeSection: SectionId;
+  reducedMotion?: boolean;
   onReady?: () => void;
   onEnterZoomComplete?: () => void;
 }
@@ -64,8 +65,21 @@ function anchoredFraming(pos: THREE.Vector3, def: PlanetDef) {
   };
 }
 
-export default function Universe({ phase, activeSection, onReady, onEnterZoomComplete }: UniverseProps) {
+function isWebGLAvailable(): boolean {
+  try {
+    const canvas = document.createElement('canvas');
+    return !!(window.WebGLRenderingContext &&
+      (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
+  } catch {
+    return false;
+  }
+}
+
+export default function Universe({ phase, activeSection, reducedMotion = false, onReady, onEnterZoomComplete }: UniverseProps) {
   const mountRef = useRef<HTMLDivElement>(null);
+  const [webglOk, setWebglOk] = useState(true);
+  const reducedMotionRef = useRef(reducedMotion);
+  useEffect(() => { reducedMotionRef.current = reducedMotion; }, [reducedMotion]);
   const apiRef = useRef<{
     zoomToHero: () => void;
     transitionToPortfolio: () => void;
@@ -98,8 +112,18 @@ export default function Universe({ phase, activeSection, onReady, onEnterZoomCom
   useEffect(() => {
     const mount = mountRef.current!;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    if (!isWebGLAvailable()) {
+      setWebglOk(false);
+      // Still call onReady — the rest of the app (ENTER button, portfolio
+      // content) shouldn't hang waiting for a 3D scene that can't exist here.
+      onReadyRef.current?.();
+      return;
+    }
+
+    const isSmallScreen = mount.clientWidth <= 860;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: !isSmallScreen, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isSmallScreen ? 1 : 2));
     renderer.setSize(mount.clientWidth, mount.clientHeight);
     renderer.setClearColor(0x000000, 0);
     renderer.toneMapping         = THREE.ACESFilmicToneMapping;
@@ -158,14 +182,16 @@ export default function Universe({ phase, activeSection, onReady, onEnterZoomCom
     scene.add(sun.mesh);
 
     // ── Starfield — denser, with a handful of larger "feature" stars ───────
-    const starPos = new Float32Array(4600 * 3);
+    const starCount = isSmallScreen ? 2000 : 4600;
+    const starPos = new Float32Array(starCount * 3);
     for (let i = 0; i < starPos.length; i++) starPos[i] = (Math.random() - 0.5) * 160;
     const starGeo = new THREE.BufferGeometry();
     starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
     const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.05, transparent: true, opacity: 0.75 }));
     scene.add(stars);
 
-    const bigStarPos = new Float32Array(140 * 3);
+    const bigStarCount = isSmallScreen ? 60 : 140;
+    const bigStarPos = new Float32Array(bigStarCount * 3);
     for (let i = 0; i < bigStarPos.length; i++) bigStarPos[i] = (Math.random() - 0.5) * 140;
     const bigStarGeo = new THREE.BufferGeometry();
     bigStarGeo.setAttribute('position', new THREE.BufferAttribute(bigStarPos, 3));
@@ -191,11 +217,13 @@ export default function Universe({ phase, activeSection, onReady, onEnterZoomCom
       sprite.scale.set(scale, scale, 1);
       scene.add(sprite);
     }
-    buildNebulaSprite('rgba(90,70,160,0.5)',  -55, 22, -90, 130, 0.35);
-    buildNebulaSprite('rgba(40,90,160,0.45)',  60, -18, -110, 150, 0.3);
-    buildNebulaSprite('rgba(160,90,60,0.35)', -30, -30, -70, 90, 0.22);
+    if (!isSmallScreen) {
+      buildNebulaSprite('rgba(90,70,160,0.5)',  -55, 22, -90, 130, 0.35);
+      buildNebulaSprite('rgba(40,90,160,0.45)',  60, -18, -110, 150, 0.3);
+      buildNebulaSprite('rgba(160,90,60,0.35)', -30, -30, -70, 90, 0.22);
+    }
 
-    const comets = createCometSystem();
+    const comets = createCometSystem(isSmallScreen ? 1 : 2);
     scene.add(comets.group);
 
     // ── Planets (always present — this IS the background AND the hero) ────
@@ -220,7 +248,11 @@ export default function Universe({ phase, activeSection, onReady, onEnterZoomCom
 
     // ── Post-processing ──────────────────────────────────────────────────
     const renderScene = new RenderPass(scene, camera);
-    const bloomPass = new UnrealBloomPass(new THREE.Vector2(mount.clientWidth, mount.clientHeight), 0.75, 0.4, 0.4);
+    const bloomRes = new THREE.Vector2(
+      mount.clientWidth  * (isSmallScreen ? 0.5 : 1),
+      mount.clientHeight * (isSmallScreen ? 0.5 : 1),
+    );
+    const bloomPass = new UnrealBloomPass(bloomRes, 0.75, 0.4, 0.4);
     const bloomComposer = new EffectComposer(renderer);
     bloomComposer.renderToScreen = false;
     bloomComposer.addPass(renderScene);
@@ -277,6 +309,11 @@ export default function Universe({ phase, activeSection, onReady, onEnterZoomCom
     let heroId: SectionId = 'hero';
 
     // ── Phase 1: ENTER — dive from the wide shot into a close Earth shot ──
+    // In reduced-motion mode, every camera fly-through collapses to a quick
+    // cut instead of a sweeping animated move — the scene still updates,
+    // it just doesn't sell the travel with a multi-second swoop.
+    const dur = (seconds: number) => (reducedMotionRef.current ? Math.min(0.12, seconds * 0.06) : seconds);
+
     const zoomToHero = () => {
       const body = bodies.find(b => b.isEarth)!;
       body.frozen = true;
@@ -288,19 +325,19 @@ export default function Universe({ phase, activeSection, onReady, onEnterZoomCom
       const tl = gsap.timeline({ onComplete: () => onEnterZoomCompleteRef.current?.() });
       activeTimeline = tl;
 
-      tl.to(camera.position, { x: camPos.x, y: camPos.y, z: camPos.z, duration: 2.6, ease: 'power3.inOut' }, 0);
-      tl.to(lookAtTarget,     { x: lookAt.x, y: lookAt.y, z: lookAt.z, duration: 2.6, ease: 'power3.inOut' }, 0);
-      tl.to(heroLight, { intensity: 2.1, duration: 1.8, ease: 'power2.out' }, 0.5);
-      tl.to(heroRim,   { intensity: 0.28, duration: 1.8, ease: 'power2.out' }, 0.5);
+      tl.to(camera.position, { x: camPos.x, y: camPos.y, z: camPos.z, duration: dur(2.6), ease: 'power3.inOut' }, 0);
+      tl.to(lookAtTarget,     { x: lookAt.x, y: lookAt.y, z: lookAt.z, duration: dur(2.6), ease: 'power3.inOut' }, 0);
+      tl.to(heroLight, { intensity: 2.1, duration: dur(1.8), ease: 'power2.out' }, 0.5);
+      tl.to(heroRim,   { intensity: 0.28, duration: dur(1.8), ease: 'power2.out' }, 0.5);
 
       // Dive past the rest of the system — it fades away as we approach Earth.
       for (const b of bodies) {
         if (b.isEarth) continue;
-        for (const t of collectFadeTargets(b.group)) tl.to(t.obj, { [t.key]: 0, duration: 1.3, ease: 'power2.in' }, 0.15);
+        for (const t of collectFadeTargets(b.group)) tl.to(t.obj, { [t.key]: 0, duration: dur(1.3), ease: 'power2.in' }, 0.15);
       }
-      for (const { line } of orbitLines) tl.to(line.material as THREE.LineBasicMaterial, { opacity: 0, duration: 1.0 }, 0.05);
-      tl.to(sun.material.uniforms.uOpacity, { value: 0, duration: 1.1 }, 0.1);
-      tl.to(stars.material as THREE.PointsMaterial, { opacity: 0.2, duration: 1.6 }, 0.1);
+      for (const { line } of orbitLines) tl.to(line.material as THREE.LineBasicMaterial, { opacity: 0, duration: dur(1.0) }, 0.05);
+      tl.to(sun.material.uniforms.uOpacity, { value: 0, duration: dur(1.1) }, 0.1);
+      tl.to(stars.material as THREE.PointsMaterial, { opacity: 0.2, duration: dur(1.6) }, 0.1);
     };
 
     // ── Phase 2: continuous hand-off into the anchored portfolio framing ──
@@ -312,27 +349,27 @@ export default function Universe({ phase, activeSection, onReady, onEnterZoomCom
       const tl = gsap.timeline();
       activeTimeline = tl;
 
-      tl.to(camera.position, { x: camPos.x, y: camPos.y, z: camPos.z, duration: 1.7, ease: 'power2.inOut' }, 0);
-      tl.to(lookAtTarget,     { x: lookAt.x, y: lookAt.y, z: lookAt.z, duration: 1.7, ease: 'power2.inOut' }, 0);
+      tl.to(camera.position, { x: camPos.x, y: camPos.y, z: camPos.z, duration: dur(1.7), ease: 'power2.inOut' }, 0);
+      tl.to(lookAtTarget,     { x: lookAt.x, y: lookAt.y, z: lookAt.z, duration: dur(1.7), ease: 'power2.inOut' }, 0);
 
       // The rest of the system fades back in, dimmed, and resumes orbiting —
       // it's the visible background from here on, for every section.
       for (const b of bodies) {
         if (b.isEarth) continue;
         b.frozen = false;
-        dimGroup(b.group, 0.5, 0.15, 1.4);
+        dimGroup(b.group, 0.5, 0.15, dur(1.4));
       }
       for (const { line, isHero } of orbitLines) {
         if (isHero) continue; // Earth's own ring stays hidden forever — this
         // close to the camera it would read as a line slicing across the
         // globe, which is exactly the artifact this guards against.
-        tl.to(line.material as THREE.LineBasicMaterial, { opacity: 0.05, duration: 1.4 }, 0);
+        tl.to(line.material as THREE.LineBasicMaterial, { opacity: 0.05, duration: dur(1.4) }, 0);
       }
       // Sun stays hidden from here on — it already faded out during
       // zoomToHero. Its light (fillLight, a separate PointLight at the
       // origin) keeps warming the planets from that direction, but the
       // blown-out bloomed disk itself never comes back into the frame.
-      tl.to(stars.material as THREE.PointsMaterial, { opacity: 0.75, duration: 1.4 }, 0);
+      tl.to(stars.material as THREE.PointsMaterial, { opacity: 0.75, duration: dur(1.4) }, 0);
     };
 
     // ── Phase 3: section-to-section — same camera-fly mechanism, reused ───
@@ -353,15 +390,15 @@ export default function Universe({ phase, activeSection, onReady, onEnterZoomCom
       const tl = gsap.timeline();
       activeTimeline = tl;
 
-      tl.to(camera.position, { x: camPos.x, y: camPos.y, z: camPos.z, duration: 1.75, ease: 'expo.inOut' }, 0);
-      tl.to(lookAtTarget,     { x: lookAt.x, y: lookAt.y, z: lookAt.z, duration: 1.75, ease: 'expo.inOut' }, 0);
+      tl.to(camera.position, { x: camPos.x, y: camPos.y, z: camPos.z, duration: dur(1.75), ease: 'expo.inOut' }, 0);
+      tl.to(lookAtTarget,     { x: lookAt.x, y: lookAt.y, z: lookAt.z, duration: dur(1.75), ease: 'expo.inOut' }, 0);
       // Starts immediately alongside the camera move (not delayed) so the
       // planet swap reads in sync with the text, which changes on its own
       // scroll-driven trigger — staggering them was the source of the felt
       // "lag" between the two.
-      dimGroup(oldBody.group, 0.5, 0.15, 1.0);
+      dimGroup(oldBody.group, 0.5, 0.15, dur(1.0));
       for (const t of collectFadeTargets(newBody.group)) {
-        gsap.to(t.obj, { [t.key]: t.key === 'value' ? 0.3 : 1, duration: 1.0, ease: 'power2.out' });
+        gsap.to(t.obj, { [t.key]: t.key === 'value' ? 0.3 : 1, duration: dur(1.0), ease: 'power2.out' });
       }
     };
 
@@ -380,14 +417,19 @@ export default function Universe({ phase, activeSection, onReady, onEnterZoomCom
       lastFrame = now;
 
       for (const b of bodies) {
-        if (!b.frozen) {
+        if (!b.frozen && !reducedMotionRef.current) {
           b.angle += b.speed;
           b.group.position.copy(orbitPosition(b.def, b.angle));
         }
         b.update();
       }
       sun.update((now - clockStart) / 1000);
-      comets.update(dt);
+      if (reducedMotionRef.current) {
+        comets.group.visible = false;
+      } else {
+        comets.group.visible = true;
+        comets.update(dt);
+      }
       camera.lookAt(lookAtTarget);
 
       currentLightColor.lerp(targetLightColor, 0.02);
@@ -422,6 +464,18 @@ export default function Universe({ phase, activeSection, onReady, onEnterZoomCom
       renderer.dispose();
     };
   }, []);
+
+  if (!webglOk) {
+    return (
+      <div
+        className="pf-universe-mount"
+        style={{
+          position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
+          background: 'radial-gradient(ellipse at 70% 40%, #14203a 0%, #0a0a0a 55%, #050505 100%)',
+        }}
+      />
+    );
+  }
 
   return (
     <div

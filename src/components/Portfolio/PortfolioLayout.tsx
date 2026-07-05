@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useReducedMotion } from '../../motionPreference';
 import type { SectionId } from '../../three/sections';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -67,33 +68,40 @@ interface FadeProps {
 
 export function Fade({ children, delay = 0, style, className }: FadeProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const [reducedMotion] = useReducedMotion();
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
 
-    gsap.set(el, { opacity: 0.15, y: 48 });
+    // Reduced motion: keep the same on-scroll reveal (so content doesn't
+    // just dump in all at once) but drop the vertical travel — opacity only.
+    const travel = reducedMotion ? 0 : 48;
+    const outDur = reducedMotion ? 0.25 : 0.5;
+    const inDur  = reducedMotion ? 0.35 : 0.7;
+
+    gsap.set(el, { opacity: 0.15, y: travel });
 
     const st = ScrollTrigger.create({
       trigger:     el,
       start:       'top 92%',
       end:         'bottom 8%',
       onEnter: () => {
-        gsap.to(el, { opacity: 1, y: 0, duration: 0.7, delay, ease: 'power2.out' });
+        gsap.to(el, { opacity: 1, y: 0, duration: inDur, delay, ease: 'power2.out' });
       },
       onLeave: () => {
-        gsap.to(el, { opacity: 0.15, y: -24, duration: 0.5, ease: 'power2.in' });
+        gsap.to(el, { opacity: 0.15, y: reducedMotion ? 0 : -24, duration: outDur, ease: 'power2.in' });
       },
       onEnterBack: () => {
-        gsap.to(el, { opacity: 1, y: 0, duration: 0.7, delay, ease: 'power2.out' });
+        gsap.to(el, { opacity: 1, y: 0, duration: inDur, delay, ease: 'power2.out' });
       },
       onLeaveBack: () => {
-        gsap.to(el, { opacity: 0.15, y: 48, duration: 0.5, ease: 'power2.in' });
+        gsap.to(el, { opacity: 0.15, y: travel, duration: outDur, ease: 'power2.in' });
       },
     });
 
     return () => st.kill();
-  }, [delay]);
+  }, [delay, reducedMotion]);
 
   return (
     <div ref={ref} style={style} className={className}>

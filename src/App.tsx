@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import Universe from './components/Universe';
 import EntryOverlay from './components/EntryOverlay';
 import Portfolio from './components/Portfolio/Index';
+import { useReducedMotion } from './motionPreference';
 import type { Phase } from './phase';
 import type { SectionId } from './three/sections';
 
@@ -9,6 +10,7 @@ function App() {
   const [phase, setPhase]               = useState<Phase>('system');
   const [sceneReady, setSceneReady]      = useState(false);
   const [activeSection, setActiveSection] = useState<SectionId>('hero');
+  const [reducedMotion, setReducedMotion] = useReducedMotion();
 
   useEffect(() => {
     document.title = 'Habib Ibrahim Touré | Portfolio';
@@ -76,6 +78,7 @@ function App() {
       <Universe
         phase={phase}
         activeSection={activeSection}
+        reducedMotion={reducedMotion}
         onReady={() => setSceneReady(true)}
         onEnterZoomComplete={handleEnterZoomComplete}
       />
@@ -90,6 +93,36 @@ function App() {
           onActiveSectionChange={setActiveSection}
         />
       )}
+
+      {/* Motion preference toggle — always reachable, in every phase. Auto-
+          follows the OS setting until touched; touching it locks in an
+          explicit choice (persisted). */}
+      <button
+        onClick={() => setReducedMotion(!reducedMotion)}
+        aria-pressed={reducedMotion}
+        style={{
+          position:      'fixed',
+          bottom:        16,
+          right:         16,
+          zIndex:        50,
+          padding:       '7px 12px',
+          background:    'rgba(10,10,10,0.55)',
+          border:        '0.5px solid rgba(255,255,255,0.16)',
+          borderRadius:  3,
+          color:         reducedMotion ? '#fff' : 'rgba(255,255,255,0.4)',
+          fontFamily:    "'Space Mono', monospace",
+          fontSize:      9.5,
+          letterSpacing: '0.14em',
+          cursor:        'pointer',
+          backdropFilter: 'blur(4px)',
+          transition:    'color 0.2s, border-color 0.2s',
+        }}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)'; }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.16)'; }}
+        title="Toggle reduced motion"
+      >
+        {reducedMotion ? '◉ REDUCED MOTION' : '◎ REDUCE MOTION'}
+      </button>
     </>
   );
 }
