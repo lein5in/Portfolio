@@ -1,22 +1,19 @@
 import * as THREE from 'three';
 import type { SectionId } from './sections';
 
-// ─── DATA ─────────────────────────────────────────────────────────────────────
-
 export interface PlanetDef {
   id:          SectionId;
   name:        string;
   baseColor:   number;
   accentColor: number;
   highlight:   number;
-  glowColor:   number; // rim glow + orbit ring tint (matches SECTION_LIGHTS)
+  glowColor:   number;
   orbitRadius: number;
-  orbitSpeed:  number; // radians per frame
-  startAngle:  number; // radians
-  inclination: number; // orbital plane tilt, radians
+  orbitSpeed:  number;
+  startAngle:  number;
+  inclination: number;
   size:        number;
   hasRing?:    boolean;
-  /** Surface style used by buildPlanetTexture. Defaults to 'banded'. */
   terrain?:    'cratered' | 'banded' | 'turbulent' | 'volcanic' | 'marbled';
 }
 
@@ -30,8 +27,6 @@ export const PLANETS: PlanetDef[] = [
 ];
 
 export const EARTH_DEF = PLANETS[0];
-
-// ─── ORBIT MATH ───────────────────────────────────────────────────────────────
 
 export function orbitPosition(def: PlanetDef, angle: number): THREE.Vector3 {
   const x = Math.cos(angle) * def.orbitRadius;
@@ -47,16 +42,9 @@ export function buildOrbitRing(def: PlanetDef): THREE.Line {
     points.push(orbitPosition(def, (i / segments) * Math.PI * 2));
   }
   const geo = new THREE.BufferGeometry().setFromPoints(points);
-  // No additive blending — that's what made these read as "glowing" and
-  // heavy. Plain, thin, low-opacity lines instead.
   const mat = new THREE.LineBasicMaterial({ color: 0x5a7bb8, transparent: true, opacity: 0.05 });
   return new THREE.Line(geo, mat);
 }
-
-// ─── COHERENT 3D NOISE (baked to a canvas texture) ─────────────────────────────
-// A real value-noise fbm sampled directly on the sphere's surface direction
-// (not 2D UV space), so it's seamless with no pole/seam artifacts — genuine
-// continent-like patterning instead of scattered random blobs.
 
 function hash3(x: number, y: number, z: number): number {
   const p = Math.sin(x * 127.1 + y * 311.7 + z * 74.7) * 43758.5453;
@@ -88,9 +76,6 @@ function fbm3(x: number, y: number, z: number, octaves = 4): number {
   return v;
 }
 
-// Deterministic per-planet RNG (same planet always paints the same craters/
-// storms — no reshuffling on re-render) — seeded off orbitRadius since every
-// PlanetDef has a distinct one.
 function seededRandom(seed: number) {
   let s = seed % 2147483647;
   if (s <= 0) s += 2147483646;
@@ -104,8 +89,6 @@ function hexc(c: number): string {
   return `#${new THREE.Color(c).getHexString()}`;
 }
 
-/** Impact craters — dark rim, faint accent-lit far wall. `molten` swaps the
- *  rim glow for the planet's highlight color, like a cooling lava rim. */
 function paintCraters(cx: CanvasRenderingContext2D, w: number, h: number, def: PlanetDef, molten: boolean) {
   const rand   = seededRandom(def.orbitRadius * 1000 + 7);
   const count  = molten ? 24 : 34;
@@ -114,7 +97,7 @@ function paintCraters(cx: CanvasRenderingContext2D, w: number, h: number, def: P
 
   for (let i = 0; i < count; i++) {
     const px = rand() * w;
-    const py = h * 0.12 + rand() * h * 0.76; // stay clear of the pole seam
+    const py = h * 0.12 + rand() * h * 0.76;
     const r  = 6 + rand() * (molten ? 26 : 20);
 
     for (const dx of [-w, 0, w]) {
@@ -141,7 +124,6 @@ function paintCraters(cx: CanvasRenderingContext2D, w: number, h: number, def: P
   }
 }
 
-/** Glowing fracture lines across a volcanic surface. */
 function paintCracks(cx: CanvasRenderingContext2D, w: number, h: number, def: PlanetDef) {
   const rand = seededRandom(def.orbitRadius * 500 + 3);
   const glow = hexc(def.highlight);
@@ -169,7 +151,6 @@ function paintCracks(cx: CanvasRenderingContext2D, w: number, h: number, def: Pl
   cx.globalAlpha = 1;
 }
 
-/** Soft blurred storm ellipses — Jupiter-spot style accents for gas bodies. */
 function paintStormSpots(cx: CanvasRenderingContext2D, w: number, h: number, def: PlanetDef, count: number) {
   const rand = seededRandom(def.orbitRadius * 250 + 11);
   const glow = hexc(def.highlight);
@@ -199,16 +180,13 @@ function paintStormSpots(cx: CanvasRenderingContext2D, w: number, h: number, def
   }
 }
 
-/**
- * Builds each planet's surface from real 3D fbm noise sampled directly on
- * the sphere (seamless, no UV pole/seam artifacts), layered with a second
- * high-frequency pass for grain so nothing reads flat or blurred, then
- * finished with a `terrain`-specific pass: latitude bands + domain-warp for
- * gas bodies, or canvas-drawn craters / lava cracks / storm spots for rocky
- * and volcanic ones. Fully procedural — zero network dependency.
- */
-function buildPlanetTexture(def: PlanetDef): THREE.CanvasTexture {
-  const w = 640, h = 320;
+export interface TextureSize {
+  w: number;
+  h: number;
+}
+
+function buildPlanetTexture(def: PlanetDef, size: TextureSize): THREE.CanvasTexture {
+  const w = size.w, h = size.h;
   const cv = document.createElement('canvas');
   cv.width = w; cv.height = h;
   const cx = cv.getContext('2d')!;
@@ -232,25 +210,20 @@ function buildPlanetTexture(def: PlanetDef): THREE.CanvasTexture {
       const y = Math.sin(lat) * scale;
       const z = Math.cos(lat) * Math.sin(lon) * scale;
 
-      // Base terrain + a finer secondary pass layered on top
       let n = fbm3(x, y, z, 5);
       n += 0.25 * fbm3(x * 3.1 + 9, y * 3.1 + 9, z * 3.1 + 9, 3);
 
-      // Latitude banding, warped through noise so it's never a clean stripe
       if (bandFreq > 0) {
         const warp = fbm3(x * 1.4, y * 1.4, z * 1.4, 4) - 0.5;
         const band = Math.sin(lat * bandFreq + warp * warpAmount) * 0.5 + 0.5;
         n = n * (1 - bandWeight) + band * bandWeight;
       }
-      // Marbled bodies: fold a second, offset noise domain into the first
       if (terrain === 'marbled') {
         const swirl = fbm3(x * 0.6 - 4, y * 0.6 - 4, z * 0.6 - 4, 4);
         n += (swirl - 0.5) * 0.5;
       }
       n = Math.min(1, Math.max(0, n));
 
-      // Fine grain — subtle per-pixel brightness jitter, kills the "smooth
-      // gradient blob" look the old single-octave version had.
       const grain    = fbm3(x * 11 + 31, y * 11 + 31, z * 11 + 31, 2);
       const grainMul = 0.92 + grain * 0.16;
 
@@ -282,7 +255,6 @@ function buildPlanetTexture(def: PlanetDef): THREE.CanvasTexture {
   }
   cx.putImageData(img, 0, 0);
 
-  // Detail pass — layered on top with real canvas drawing, seam-aware
   if (terrain === 'cratered' || terrain === 'volcanic') {
     paintCraters(cx, w, h, def, terrain === 'volcanic');
   }
@@ -298,7 +270,10 @@ function buildPlanetTexture(def: PlanetDef): THREE.CanvasTexture {
   return tex;
 }
 
-// ─── PLANET FACTORY ─────────────────────────────────────────────────────────
+export interface ProceduralPlanetOptions {
+  segments?: number;
+  textureSize?: TextureSize;
+}
 
 export interface ProceduralPlanetHandle {
   group: THREE.Group;
@@ -306,18 +281,24 @@ export interface ProceduralPlanetHandle {
   update: () => void;
 }
 
-export function createProceduralPlanet(def: PlanetDef, radiusOverride?: number): ProceduralPlanetHandle {
+export function createProceduralPlanet(
+  def: PlanetDef,
+  radiusOverride?: number,
+  options: ProceduralPlanetOptions = {},
+): ProceduralPlanetHandle {
   const group = new THREE.Group();
   const r = radiusOverride ?? def.size;
+  const segments = options.segments ?? 48;
+  const textureSize = options.textureSize ?? { w: 640, h: 320 };
 
-  const mat = new THREE.MeshPhongMaterial({
-    map:         buildPlanetTexture(def),
-    specular:    new THREE.Color(0x2a2a2a),
-    shininess:   10,
+  const mat = new THREE.MeshStandardMaterial({
+    map:         buildPlanetTexture(def, textureSize),
+    roughness:   0.85,
+    metalness:   0.05,
     transparent: true,
     opacity:     1,
   });
-  const mesh = new THREE.Mesh(new THREE.SphereGeometry(r, 48, 48), mat);
+  const mesh = new THREE.Mesh(new THREE.SphereGeometry(r, segments, segments), mat);
   mesh.rotation.x = 0.15 + Math.random() * 0.12;
   group.add(mesh);
 

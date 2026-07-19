@@ -7,35 +7,38 @@ import type { Phase } from './phase';
 import type { SectionId } from './three/sections';
 
 function App() {
-  const [phase, setPhase]               = useState<Phase>('system');
-  const [sceneReady, setSceneReady]      = useState(false);
-  const [activeSection, setActiveSection] = useState<SectionId>('hero');
-  const [reducedMotion, setReducedMotion] = useReducedMotion();
+  const [phase, setPhase]                 = useState<Phase>('system');
+  const [sceneReady, setSceneReady]        = useState(false);
+  const [webglAvailable, setWebglAvailable] = useState(true);
+  const [activeSection, setActiveSection]  = useState<SectionId>('hero');
+  const [reducedMotion, setReducedMotion]  = useReducedMotion();
 
   useEffect(() => {
     document.title = 'Habib Ibrahim Touré | Portfolio';
   }, []);
 
-  // Lock page scroll until we've actually handed off into the portfolio —
-  // the entry sequence is fully controlled (ENTER click, then a deliberate
-  // scroll gesture to advance), real document scroll only starts once we're
-  // in portfolio mode.
   useEffect(() => {
     const locked = phase !== 'toPortfolio' && phase !== 'portfolio';
     document.body.style.overflow = locked ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [phase]);
 
-  const handleEnter = useCallback(() => {
-    setPhase(p => (p === 'system' ? 'zoomingEnter' : p));
+  const handleReady = useCallback((available: boolean) => {
+    setWebglAvailable(available);
+    setSceneReady(true);
   }, []);
+
+  const handleEnter = useCallback(() => {
+    setPhase(p => {
+      if (p !== 'system') return p;
+      return webglAvailable ? 'zoomingEnter' : 'portfolio';
+    });
+  }, [webglAvailable]);
 
   const handleEnterZoomComplete = useCallback(() => {
     setPhase('revealed');
   }, []);
 
-  // Once "revealed", the user's own scroll/touch/key — not a timer —
-  // triggers the continuous hand-off into the portfolio.
   useEffect(() => {
     if (phase !== 'revealed') return;
     let touchY: number | null = null;
@@ -64,7 +67,6 @@ function App() {
     };
   }, [phase]);
 
-  // toPortfolio → portfolio once the camera hand-off has had time to settle
   useEffect(() => {
     if (phase !== 'toPortfolio') return;
     const t = setTimeout(() => setPhase('portfolio'), 1700);
@@ -79,7 +81,7 @@ function App() {
         phase={phase}
         activeSection={activeSection}
         reducedMotion={reducedMotion}
-        onReady={() => setSceneReady(true)}
+        onReady={handleReady}
         onEnterZoomComplete={handleEnterZoomComplete}
       />
 
@@ -94,9 +96,6 @@ function App() {
         />
       )}
 
-      {/* Motion preference toggle — always reachable, in every phase. Auto-
-          follows the OS setting until touched; touching it locks in an
-          explicit choice (persisted). */}
       <button
         onClick={() => setReducedMotion(!reducedMotion)}
         aria-pressed={reducedMotion}
