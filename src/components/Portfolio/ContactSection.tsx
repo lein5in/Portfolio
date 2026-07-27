@@ -4,7 +4,7 @@ import { FaGithub, FaLinkedin, FaEnvelope, FaMapMarkerAlt, FaPaperPlane } from '
 import { Fade, mono, sectionLabel, divider } from './PortfolioLayout';
 import type { SectionId } from '../../three/sections';
 
-// ─── COMPONENT ────────────────────────────────────────────────────────────────
+
 
 interface ContactSectionProps {
   setRef: (id: SectionId) => (el: HTMLElement | null) => void;
@@ -47,7 +47,7 @@ export default function ContactSection({ setRef }: ContactSectionProps) {
           <div style={sectionLabel}>Contact</div>
           <div style={{
             ...mono,
-            fontSize:      11,
+            fontSize:      12,
             color:         'rgba(255,255,255,0.45)',
             letterSpacing: '0.26em',
             textTransform: 'uppercase',
@@ -55,12 +55,12 @@ export default function ContactSection({ setRef }: ContactSectionProps) {
           } as React.CSSProperties}>
             Currently Available
           </div>
-          <h2 className="pf-breakout" style={{ ...sectionTitle, fontSize: 'clamp(52px,7vw,96px)', maxWidth: 'min(90vw, 820px)' }}>
+          <h2 className="pf-breakout" style={{ ...sectionTitle, fontSize: 'clamp(56.2px,7vw,103.7px)', maxWidth: 'min(90vw, 820px)' }}>
             Make contact.
           </h2>
           <p style={{
             fontFamily:   "'Space Mono', monospace",
-            fontSize:     13,
+            fontSize:     14,
             color:        'rgba(255,255,255,0.66)',
             lineHeight:   1.95,
             maxWidth:     400,
@@ -71,7 +71,7 @@ export default function ContactSection({ setRef }: ContactSectionProps) {
           </p>
         </Fade>
 
-        {/* Form */}
+        {}
         <Fade>
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20, marginBottom: 48 }}>
             <div>
@@ -121,14 +121,8 @@ export default function ContactSection({ setRef }: ContactSectionProps) {
               type="submit"
               disabled={status === 'sending'}
               style={submitBtn}
-              onMouseEnter={e => {
-                e.currentTarget.style.color        = '#ffffff';
-                e.currentTarget.style.borderColor  = 'rgba(255,255,255,0.48)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.color        = 'rgba(255,255,255,0.4)';
-                e.currentTarget.style.borderColor  = 'rgba(255,255,255,0.1)';
-              }}
+              onMouseEnter={e => { e.currentTarget.style.color = '#ffffff'; }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; }}
             >
               {status === 'sending' ? (
                 <>
@@ -143,24 +137,24 @@ export default function ContactSection({ setRef }: ContactSectionProps) {
                   SENDING...
                 </>
               ) : (
-                <><FaPaperPlane size={10} /> SEND MESSAGE</>
+                <>SEND MESSAGE <FaPaperPlane size={10} /></>
               )}
             </button>
 
             {status === 'success' && (
-              <p style={{ ...mono, fontSize: 12, color: '#7ecfa0', letterSpacing: '0.1em', textAlign: 'center' } as React.CSSProperties}>
+              <p style={{ ...mono, fontSize: 13, color: '#7ecfa0', letterSpacing: '0.1em', textAlign: 'center' } as React.CSSProperties}>
                 ✓ Message sent — I'll get back to you soon.
               </p>
             )}
             {status === 'error' && (
-              <p style={{ ...mono, fontSize: 12, color: '#e27e7e', letterSpacing: '0.1em', textAlign: 'center' } as React.CSSProperties}>
+              <p style={{ ...mono, fontSize: 13, color: '#e27e7e', letterSpacing: '0.1em', textAlign: 'center' } as React.CSSProperties}>
                 ✗ Something went wrong — email me directly.
               </p>
             )}
           </form>
         </Fade>
 
-        {/* Links */}
+        {}
         <Fade>
           <div style={{
             borderTop:    '0.5px solid rgba(255,255,255,0.06)',
@@ -178,7 +172,7 @@ export default function ContactSection({ setRef }: ContactSectionProps) {
                   <div>
                     <div style={{
                       ...mono,
-                      fontSize:      8,
+                      fontSize:      9,
                       color:         'rgba(255,255,255,0.58)',
                       letterSpacing: '0.2em',
                       textTransform: 'uppercase',
@@ -188,7 +182,7 @@ export default function ContactSection({ setRef }: ContactSectionProps) {
                     </div>
                     <div style={{
                       fontFamily: "'Space Mono', monospace",
-                      fontSize:   12,
+                      fontSize:   13,
                       color:      'rgba(255,255,255,0.65)',
                     }}>
                       {item.value}
@@ -225,27 +219,24 @@ export default function ContactSection({ setRef }: ContactSectionProps) {
           </div>
         </Fade>
 
-        {/* Resume */}
+        {}
         <Fade>
           <a
             href="/Ibraheem_habib_toure.cv_en.pdf"
             target="_blank"
             rel="noopener noreferrer"
             style={cvBtn}
-            onMouseEnter={e => {
-              e.currentTarget.style.color       = '#ffffff';
-              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.45)';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.color       = 'rgba(255,255,255,0.52)';
-              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)';
-            }}
+            onMouseEnter={e => { e.currentTarget.style.color = '#ffffff'; }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.52)'; }}
           >
-            DOWNLOAD RESUME →
+            <span style={{ width: 22, height: 22, borderRadius: '50%', border: '1px solid currentColor', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12 }}>
+              ↓
+            </span>
+            DOWNLOAD RESUME
           </a>
         </Fade>
 
-        {/* Footer */}
+        {}
         <Fade>
           <div style={{
             marginTop:      80,
@@ -256,10 +247,10 @@ export default function ContactSection({ setRef }: ContactSectionProps) {
             flexWrap:       'wrap',
             gap:            12,
           }}>
-            <span style={{ ...mono, fontSize: 11, color: 'rgba(255,255,255,0.12)', letterSpacing: '0.1em' } as React.CSSProperties}>
+            <span style={{ ...mono, fontSize: 12, color: 'rgba(255,255,255,0.12)', letterSpacing: '0.1em' } as React.CSSProperties}>
               © 2026 Habib Ibrahim Touré
             </span>
-            <span style={{ ...mono, fontSize: 11, color: 'rgba(255,255,255,0.12)', letterSpacing: '0.1em' } as React.CSSProperties}>
+            <span style={{ ...mono, fontSize: 12, color: 'rgba(255,255,255,0.12)', letterSpacing: '0.1em' } as React.CSSProperties}>
               Built with React · Three.js · GLSL · GSAP
             </span>
           </div>
@@ -275,11 +266,11 @@ export default function ContactSection({ setRef }: ContactSectionProps) {
   );
 }
 
-// ─── STYLES ───────────────────────────────────────────────────────────────────
+
 
 const sectionTitle: React.CSSProperties = {
   fontFamily:    "'Space Grotesk', sans-serif",
-  fontSize:      'clamp(42px,5.5vw,72px)',
+  fontSize:      'clamp(45.4px,5.5vw,77.8px)',
   fontWeight:    700,
   color:         '#ffffff',
   lineHeight:    1.0,
@@ -289,7 +280,7 @@ const sectionTitle: React.CSSProperties = {
 
 const labelStyle: React.CSSProperties = {
   fontFamily:    "'Space Mono', monospace",
-  fontSize:      8,
+  fontSize:      9,
   color:         'rgba(255,255,255,0.45)',
   letterSpacing: '0.24em',
   textTransform: 'uppercase',
@@ -304,7 +295,7 @@ const inputStyle: React.CSSProperties = {
   borderRadius: 2,
   padding:      '12px 14px',
   color:        'rgba(255,255,255,0.75)',
-  fontSize:     13,
+  fontSize:     14,
   fontFamily:   "'Space Mono', monospace",
   outline:      'none',
   boxSizing:    'border-box',
@@ -314,32 +305,27 @@ const inputStyle: React.CSSProperties = {
 const submitBtn: React.CSSProperties = {
   display:        'flex',
   alignItems:     'center',
-  justifyContent: 'center',
-  gap:            8,
+  justifyContent: 'flex-start',
+  gap:            10,
   fontFamily:     "'Space Mono', monospace",
-  fontSize:       10,
+  fontSize:       12,
   letterSpacing:  '0.2em',
-  padding:        '13px 28px',
+  padding:        '4px 0',
   background:     'transparent',
-  border:         '0.5px solid rgba(255,255,255,0.1)',
-  color:          'rgba(255,255,255,0.4)',
-  borderRadius:   2,
+  border:         'none',
+  color:          'rgba(255,255,255,0.5)',
   cursor:         'pointer',
-  transition:     'all 0.2s',
+  transition:     'color 0.2s',
 };
 
 const cvBtn: React.CSSProperties = {
   display:        'flex',
   alignItems:     'center',
-  justifyContent: 'center',
+  gap:            12,
   fontFamily:     "'Space Mono', monospace",
-  fontSize:       10,
+  fontSize:       12,
   letterSpacing:  '0.2em',
-  padding:        '13px',
-  background:     'transparent',
-  border:         '0.5px solid rgba(255,255,255,0.07)',
   color:          'rgba(255,255,255,0.52)',
-  borderRadius:   2,
   textDecoration: 'none',
-  transition:     'all 0.2s',
+  transition:     'color 0.2s',
 };

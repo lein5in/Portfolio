@@ -2,9 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { FaImages, FaTimes, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
-// ─── IMAGE GALLERY LINK ───────────────────────────────────────────────────────
-// Sits next to GITHUB / LIVE. Hovering shows a quick preview popup (first
-// image) with a "See all" shortcut; clicking either opens the full lightbox.
 
 interface ProjectGalleryProps {
   images: string[];
@@ -15,7 +12,7 @@ export default function ProjectGallery({ images, label = 'VIEW IMAGES' }: Projec
   const [hovering, setHovering]   = useState(false);
   const [lightbox, setLightbox]   = useState<number | null>(null);
 
-  // Keyboard nav for the lightbox
+  
   useEffect(() => {
     if (lightbox === null) return;
     const onKey = (e: KeyboardEvent) => {
@@ -105,14 +102,14 @@ export default function ProjectGallery({ images, label = 'VIEW IMAGES' }: Projec
   );
 }
 
-// ─── STYLES ───────────────────────────────────────────────────────────────────
+
 
 const linkStyle: React.CSSProperties = {
   display:        'flex',
   alignItems:     'center',
   gap:            6,
   fontFamily:     "'Space Mono', monospace",
-  fontSize:       12,
+  fontSize:       13,
   letterSpacing:  '0.14em',
   color:          'rgba(255,255,255,0.48)',
   background:     'none',
@@ -152,7 +149,7 @@ const seeAllStyle: React.CSSProperties = {
   width:         '100%',
   textAlign:     'right',
   fontFamily:    "'Space Mono', monospace",
-  fontSize:      10.5,
+  fontSize:      11.5,
   letterSpacing: '0.08em',
   color:         'rgba(255,255,255,0.6)',
   background:    'none',
@@ -220,7 +217,7 @@ const counterStyle: React.CSSProperties = {
   left:          '50%',
   transform:     'translateX(-50%)',
   fontFamily:    "'Space Mono', monospace",
-  fontSize:      11,
+  fontSize:      12,
   letterSpacing: '0.14em',
   color:         'rgba(255,255,255,0.45)',
 };

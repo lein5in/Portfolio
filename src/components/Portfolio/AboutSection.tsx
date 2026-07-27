@@ -2,23 +2,13 @@ import React from 'react';
 import { Fade, mono, sectionLabel, divider } from './PortfolioLayout';
 import type { SectionId } from '../../three/sections';
 
-// ─── PHRASES ──────────────────────────────────────────────────────────────────
-
 const phrases = [
   {
-    text: "I didn't grow up dreaming of a computer science degree. I grew up curious — about how things work, why they break, and what happens when you push them past their limits.",
+    text: "I grew up curious — about how things work, why they break, and what happens when you push them past their limits.",
     size: 'large',
   },
   {
-    text: "Somewhere along the way I discovered that software is the closest thing we have to building a thought and watching it run.",
-    size: 'large',
-  },
-  {
-    text: "I'm drawn to problems that sit at the edge of what's easy — voice assistants that need to feel instant, study tools that need to feel calm, interfaces that need to feel alive.",
-    size: 'medium',
-  },
-  {
-    text: "I build across the stack, from CUDA inference pipelines to Chrome extensions to GLSL shaders, because the engineers I admire most understand what's happening at every layer.",
+    text: "Software is the closest thing I've found to building a thought and watching it run.",
     size: 'medium',
   },
   {
@@ -28,18 +18,20 @@ const phrases = [
 ];
 
 const stats = [
-  { value: '3',    label: 'Languages spoken' },
-  { value: '4+',   label: 'Projects shipped'  },
-  { value: '2026', label: 'Co-op ready'        },
+  { value: '<1s',  label: 'MARA response latency' },
+  { value: '~30%', label: 'Annotation effort reduced' },
+  { value: '3',    label: 'Full-stack projects shipped' },
 ];
 
-// ─── PROPS ────────────────────────────────────────────────────────────────────
+const next = [
+  'Seren — building out persistent memory for conversations and flashcards',
+  'AITradingAgent — testing strategies against more historical data',
+  'This portfolio — new case studies as things ship',
+];
 
 interface AboutSectionProps {
   setRef: (id: SectionId) => (el: HTMLElement | null) => void;
 }
-
-// ─── COMPONENT ────────────────────────────────────────────────────────────────
 
 export default function AboutSection({ setRef }: AboutSectionProps) {
   return (
@@ -48,19 +40,17 @@ export default function AboutSection({ setRef }: AboutSectionProps) {
 
       <section ref={setRef('about')} className="pf-section-pad" style={{ padding: '110px 64px' }}>
 
-        {/* Label */}
         <Fade>
           <div style={sectionLabel}>About</div>
         </Fade>
 
-        {/* Phrases */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 36, marginBottom: 80 }}>
           {phrases.map((p, i) => (
-            <Fade key={i} delay={i * 0.04}>
+            <Fade key={i} delay={i * 0.18}>
               <p
                 className={i === 0 ? 'pf-breakout' : undefined}
                 style={i === 0
-                  ? { ...phraseStyle('large'), maxWidth: 'min(78vw, 760px)', fontSize: 'clamp(26px,3.4vw,40px)' }
+                  ? { ...phraseStyle('large'), maxWidth: 'min(78vw, 760px)', fontSize: 'clamp(28.6px,3.4vw,43.2px)' }
                   : phraseStyle(p.size as 'large' | 'medium' | 'small')}
               >
                 {p.text}
@@ -69,7 +59,6 @@ export default function AboutSection({ setRef }: AboutSectionProps) {
           ))}
         </div>
 
-        {/* Stats */}
         <Fade>
           <div className="pf-stats-grid" style={{
             display:             'grid',
@@ -90,7 +79,7 @@ export default function AboutSection({ setRef }: AboutSectionProps) {
               }}>
                 <div style={{
                   fontFamily:    "'Space Grotesk', sans-serif",
-                  fontSize:      40,
+                  fontSize:      43.2,
                   color:         '#ffffff',
                   fontWeight:    700,
                   lineHeight:    1,
@@ -101,7 +90,7 @@ export default function AboutSection({ setRef }: AboutSectionProps) {
                 </div>
                 <div style={{
                   ...mono,
-                  fontSize:      11,
+                  fontSize:      12,
                   color:         'rgba(255,255,255,0.42)',
                   letterSpacing: '0.18em',
                   textTransform: 'uppercase',
@@ -113,12 +102,11 @@ export default function AboutSection({ setRef }: AboutSectionProps) {
           </div>
         </Fade>
 
-        {/* Currently */}
         <Fade>
-          <div>
+          <div style={{ marginBottom: 40 }}>
             <div style={{
               ...mono,
-              fontSize:      11,
+              fontSize:      12,
               color:         'rgba(255,255,255,0.45)',
               letterSpacing: '0.28em',
               textTransform: 'uppercase',
@@ -135,7 +123,7 @@ export default function AboutSection({ setRef }: AboutSectionProps) {
                 <div key={label} style={{ display: 'flex', gap: 20, alignItems: 'baseline' }}>
                   <span style={{
                     ...mono,
-                    fontSize:      11,
+                    fontSize:      12,
                     color:         'rgba(255,255,255,0.48)',
                     letterSpacing: '0.12em',
                     minWidth:      88,
@@ -145,12 +133,49 @@ export default function AboutSection({ setRef }: AboutSectionProps) {
                   </span>
                   <span style={{
                     fontFamily: "'Space Mono', monospace",
-                    fontSize:   14,
-                    color:      'rgba(255,255,255,0.5)',
+                    fontSize:   16,
+                    color:      'rgba(255,255,255,0.68)',
                     fontWeight: 400,
                     lineHeight: 1.6,
                   }}>
                     {value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Fade>
+
+        <Fade>
+          <div>
+            <div style={{
+              ...mono,
+              fontSize:      12,
+              color:         'rgba(255,255,255,0.45)',
+              letterSpacing: '0.28em',
+              textTransform: 'uppercase',
+              marginBottom:  24,
+            } as React.CSSProperties}>
+              What's Next
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {next.map(item => (
+                <div key={item} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                  <span style={{
+                    color:     'rgba(255,255,255,0.35)',
+                    flexShrink: 0,
+                    fontSize:  13,
+                    marginTop: 2,
+                  }}>
+                    •
+                  </span>
+                  <span style={{
+                    fontFamily: "'Space Mono', monospace",
+                    fontSize:   14,
+                    color:      'rgba(255,255,255,0.68)',
+                    lineHeight: 1.7,
+                  }}>
+                    {item}
                   </span>
                 </div>
               ))}
@@ -163,8 +188,6 @@ export default function AboutSection({ setRef }: AboutSectionProps) {
   );
 }
 
-// ─── STYLES ───────────────────────────────────────────────────────────────────
-
 function phraseStyle(size: 'large' | 'medium' | 'small'): React.CSSProperties {
   const base: React.CSSProperties = {
     color:      'rgba(255,255,255,0.65)',
@@ -175,7 +198,7 @@ function phraseStyle(size: 'large' | 'medium' | 'small'): React.CSSProperties {
   if (size === 'large') return {
     ...base,
     fontFamily:    "'Space Grotesk', sans-serif",
-    fontSize:      'clamp(20px,2.4vw,28px)',
+    fontSize:      'clamp(22px,2.4vw,30.8px)',
     fontWeight:    700,
     color:         'rgba(255,255,255,0.88)',
     lineHeight:    1.25,
@@ -184,14 +207,14 @@ function phraseStyle(size: 'large' | 'medium' | 'small'): React.CSSProperties {
   if (size === 'medium') return {
     ...base,
     fontFamily: "'Space Mono', monospace",
-    fontSize:   14.5,
-    color:      'rgba(255,255,255,0.74)',
+    fontSize:   16.5,
+    color:      'rgba(255,255,255,0.8)',
     lineHeight: 1.9,
   };
   return {
     ...base,
     fontFamily:    "'Space Mono', monospace",
-    fontSize:      12,
+    fontSize:      13,
     letterSpacing: '0.18em',
     color:         'rgba(255,255,255,0.5)',
     textTransform: 'uppercase',

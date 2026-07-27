@@ -6,13 +6,8 @@ export interface FadeTarget {
   key: string;
 }
 
-/**
- * Walks a group and returns one fade target per material found — either the
- * material's own `opacity` property, or, for ShaderMaterial instances that
- * drive their own transparency via a `uOpacity` uniform (e.g. the rim-glow
- * shader), that uniform's `.value`. Tweening `.opacity` alone on a
- * ShaderMaterial does nothing if the shader never reads it.
- */
+
+
 export function collectFadeTargets(root: THREE.Object3D): FadeTarget[] {
   const targets: FadeTarget[] = [];
   root.traverse(obj => {

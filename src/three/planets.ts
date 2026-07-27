@@ -1,29 +1,89 @@
 import * as THREE from 'three';
 import type { SectionId } from './sections';
+import { atmosphereVert, atmosphereFrag } from './shaders';
+import { loadTextureAsync } from './textureLoad';
+
+export interface AtmosphereDef {
+  day: number;
+  dawn: number;
+  night: number;
+  opacity: number;
+}
 
 export interface PlanetDef {
-  id:          SectionId;
-  name:        string;
-  baseColor:   number;
-  accentColor: number;
-  highlight:   number;
-  glowColor:   number;
+  id: SectionId;
+  name: string;
   orbitRadius: number;
-  orbitSpeed:  number;
-  startAngle:  number;
+  orbitSpeed: number;
+  startAngle: number;
   inclination: number;
-  size:        number;
-  hasRing?:    boolean;
-  terrain?:    'cratered' | 'banded' | 'turbulent' | 'volcanic' | 'marbled';
+  size: number;
+  texture?: string;
+  ring?: string;
+  atmosphere?: AtmosphereDef;
+  zoomFactor?: number;
+  framingRadius?: number;
+  materialRoughness?: number;
+  materialMetalness?: number;
+  axialTilt?: number;
+  sphereScale?: number;
 }
 
 export const PLANETS: PlanetDef[] = [
-  { id: 'hero',       name: 'Earth',  baseColor: 0x2a5fa8, accentColor: 0x16305c, highlight: 0x8fc7ff, glowColor: 0x2673f2, orbitRadius: 3.2, orbitSpeed: 0.00046, startAngle: 0.4, inclination: 0.05,  size: 0.80 },
-  { id: 'about',      name: 'Ochra',  baseColor: 0xd9a441, accentColor: 0x8a5a1c, highlight: 0xffe9b8, glowColor: 0xffaa00, orbitRadius: 4.6, orbitSpeed: 0.00035, startAngle: 2.1, inclination: 0.11,  size: 0.62, terrain: 'cratered' },
-  { id: 'projects',   name: 'Nyra',   baseColor: 0x3568c9, accentColor: 0x14275c, highlight: 0x8fc7ff, glowColor: 0x4488ff, orbitRadius: 6.0, orbitSpeed: 0.00027, startAngle: 4.0, inclination: -0.08, size: 0.74, hasRing: true, terrain: 'banded' },
-  { id: 'skills',     name: 'Vex',    baseColor: 0x1fae93, accentColor: 0x0b4d40, highlight: 0x7ff5de, glowColor: 0x00ffcc, orbitRadius: 7.4, orbitSpeed: 0.00021, startAngle: 0.9, inclination: 0.14,  size: 0.68, hasRing: true, terrain: 'turbulent' },
-  { id: 'experience', name: 'Kryol',  baseColor: 0xc9491f, accentColor: 0x64220a, highlight: 0xffb37a, glowColor: 0xff5500, orbitRadius: 8.8, orbitSpeed: 0.00017, startAngle: 5.2, inclination: -0.05, size: 0.82, terrain: 'volcanic' },
-  { id: 'contact',    name: 'Selo',   baseColor: 0xc23a86, accentColor: 0x531a3f, highlight: 0xff9fd0, glowColor: 0xff2288, orbitRadius: 10.2, orbitSpeed: 0.00014, startAngle: 3.3, inclination: 0.08,  size: 0.58, terrain: 'marbled' },
+  {
+    id: 'hero', name: 'Earth',
+    orbitRadius: 3.2, orbitSpeed: 0.00046, startAngle: 0.4, inclination: 0.05,
+    size: 0.80,
+    zoomFactor: 1.0,
+  },
+  {
+    id: 'about', name: 'Mars',
+    orbitRadius: 4.6, orbitSpeed: 0.00035, startAngle: 2.1, inclination: 0.11,
+    size: 0.62,
+    texture: '/textures/planets/8k_mars.jpg',
+    atmosphere: { day: 0xd98a5f, dawn: 0xffcba0, night: 0x140a06, opacity: 0.06 },
+    materialRoughness: 0.97,
+    zoomFactor: 0.85,
+  },
+  {
+    id: 'projects', name: 'Jupiter',
+    orbitRadius: 6.0, orbitSpeed: 0.00027, startAngle: 4.0, inclination: -0.08,
+    size: 0.74,
+    texture: '/textures/planets/8k_jupiter.jpg',
+    atmosphere: { day: 0xe8d9b0, dawn: 0xfff3d9, night: 0x1a140a, opacity: 0.09 },
+    materialRoughness: 0.78,
+    zoomFactor: 0.85,
+  },
+  {
+    id: 'skills', name: 'Saturn',
+    orbitRadius: 7.4, orbitSpeed: 0.00021, startAngle: 0.9, inclination: 0.14,
+    size: 0.68,
+    texture: '/textures/planets/8k_saturn.jpg',
+    ring: '/textures/planets/8k_saturn_ring_alpha.png',
+    atmosphere: { day: 0xf5e8c0, dawn: 0xfff6da, night: 0x1a160a, opacity: 0.08 },
+    materialRoughness: 0.8,
+    zoomFactor: 1.0,
+    framingRadius: 1.3,
+    axialTilt: 0.32,
+    sphereScale: 1.15,
+  },
+  {
+    id: 'experience', name: 'Venus',
+    orbitRadius: 8.8, orbitSpeed: 0.00017, startAngle: 5.2, inclination: -0.05,
+    size: 0.78,
+    texture: '/textures/planets/8k_venus_surface.jpg',
+    atmosphere: { day: 0xf2c869, dawn: 0xffe0a0, night: 0x1a1206, opacity: 0.14 },
+    materialRoughness: 0.85,
+    zoomFactor: 0.9,
+  },
+  {
+    id: 'contact', name: 'Moon',
+    orbitRadius: 10.2, orbitSpeed: 0.00014, startAngle: 3.3, inclination: 0.08,
+    size: 0.5,
+    texture: '/textures/planets/8k_moon.jpg',
+    materialRoughness: 0.98,
+    zoomFactor: 0.8,
+  },
 ];
 
 export const EARTH_DEF = PLANETS[0];
@@ -46,274 +106,137 @@ export function buildOrbitRing(def: PlanetDef): THREE.Line {
   return new THREE.Line(geo, mat);
 }
 
-function hash3(x: number, y: number, z: number): number {
-  const p = Math.sin(x * 127.1 + y * 311.7 + z * 74.7) * 43758.5453;
-  return p - Math.floor(p);
-}
-
-function noise3(x: number, y: number, z: number): number {
-  const xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z);
-  const xf = x - xi, yf = y - yi, zf = z - zi;
-  const u = xf * xf * (3 - 2 * xf);
-  const v = yf * yf * (3 - 2 * yf);
-  const w = zf * zf * (3 - 2 * zf);
-  const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-  const h = (dx: number, dy: number, dz: number) => hash3(xi + dx, yi + dy, zi + dz);
-  return lerp(
-    lerp(lerp(h(0,0,0), h(1,0,0), u), lerp(h(0,1,0), h(1,1,0), u), v),
-    lerp(lerp(h(0,0,1), h(1,0,1), u), lerp(h(0,1,1), h(1,1,1), u), v),
-    w
-  );
-}
-
-function fbm3(x: number, y: number, z: number, octaves = 4): number {
-  let v = 0, a = 0.5;
-  for (let i = 0; i < octaves; i++) {
-    v += a * noise3(x, y, z);
-    x *= 2.02; y *= 2.02; z *= 2.02;
-    a *= 0.5;
+function remapRingUV(geometry: THREE.RingGeometry, innerRadius: number, outerRadius: number) {
+  const pos = geometry.attributes.position as THREE.BufferAttribute;
+  const uv = geometry.attributes.uv as THREE.BufferAttribute;
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i);
+    const y = pos.getY(i);
+    const radius = Math.sqrt(x * x + y * y);
+    const u = THREE.MathUtils.clamp((radius - innerRadius) / (outerRadius - innerRadius), 0, 1);
+    uv.setXY(i, u, 0.5);
   }
-  return v;
+  uv.needsUpdate = true;
 }
 
-function seededRandom(seed: number) {
-  let s = seed % 2147483647;
-  if (s <= 0) s += 2147483646;
-  return () => {
-    s = (s * 16807) % 2147483647;
-    return (s - 1) / 2147483646;
-  };
-}
-
-function hexc(c: number): string {
-  return `#${new THREE.Color(c).getHexString()}`;
-}
-
-function paintCraters(cx: CanvasRenderingContext2D, w: number, h: number, def: PlanetDef, molten: boolean) {
-  const rand   = seededRandom(def.orbitRadius * 1000 + 7);
-  const count  = molten ? 24 : 34;
-  const glow   = hexc(def.highlight);
-  const accent = hexc(def.accentColor);
-
-  for (let i = 0; i < count; i++) {
-    const px = rand() * w;
-    const py = h * 0.12 + rand() * h * 0.76;
-    const r  = 6 + rand() * (molten ? 26 : 20);
-
-    for (const dx of [-w, 0, w]) {
-      const cxp = px + dx;
-      if (cxp < -r || cxp > w + r) continue;
-
-      const rim = cx.createRadialGradient(cxp, py, r * 0.15, cxp, py, r);
-      if (molten) {
-        rim.addColorStop(0,    'rgba(0,0,0,0.55)');
-        rim.addColorStop(0.6,  'rgba(0,0,0,0.28)');
-        rim.addColorStop(0.82, glow + 'aa');
-        rim.addColorStop(1,    'rgba(0,0,0,0)');
-      } else {
-        rim.addColorStop(0,    'rgba(0,0,0,0.42)');
-        rim.addColorStop(0.65, 'rgba(0,0,0,0.18)');
-        rim.addColorStop(0.8,  accent + '55');
-        rim.addColorStop(1,    'rgba(0,0,0,0)');
-      }
-      cx.fillStyle = rim;
-      cx.beginPath();
-      cx.arc(cxp, py, r, 0, Math.PI * 2);
-      cx.fill();
-    }
-  }
-}
-
-function paintCracks(cx: CanvasRenderingContext2D, w: number, h: number, def: PlanetDef) {
-  const rand = seededRandom(def.orbitRadius * 500 + 3);
-  const glow = hexc(def.highlight);
-
-  for (let i = 0; i < 9; i++) {
-    let x = rand() * w;
-    let y = h * 0.15 + rand() * h * 0.7;
-    const segs = 5 + Math.floor(rand() * 5);
-
-    cx.strokeStyle  = glow;
-    cx.lineWidth    = 1 + rand() * 1.4;
-    cx.globalAlpha  = 0.55;
-    cx.shadowColor  = glow;
-    cx.shadowBlur   = 6;
-    cx.beginPath();
-    cx.moveTo(x, y);
-    for (let s = 0; s < segs; s++) {
-      x += (rand() - 0.5) * 34;
-      y += (rand() - 0.5) * 18;
-      cx.lineTo(x, y);
-    }
-    cx.stroke();
-  }
-  cx.shadowBlur  = 0;
-  cx.globalAlpha = 1;
-}
-
-function paintStormSpots(cx: CanvasRenderingContext2D, w: number, h: number, def: PlanetDef, count: number) {
-  const rand = seededRandom(def.orbitRadius * 250 + 11);
-  const glow = hexc(def.highlight);
-
-  for (let i = 0; i < count; i++) {
-    const px = rand() * w;
-    const py = h * 0.2 + rand() * h * 0.6;
-    const rx = 26 + rand() * 40;
-    const ry = rx * (0.5 + rand() * 0.3);
-
-    for (const dx of [-w, 0, w]) {
-      const cxp = px + dx;
-      if (cxp < -rx || cxp > w + rx) continue;
-      cx.save();
-      cx.translate(cxp, py);
-      cx.scale(1, ry / rx);
-      cx.translate(-cxp, -py);
-      const g = cx.createRadialGradient(cxp, py, 0, cxp, py, rx);
-      g.addColorStop(0, glow + '66');
-      g.addColorStop(1, 'rgba(0,0,0,0)');
-      cx.fillStyle = g;
-      cx.beginPath();
-      cx.arc(cxp, py, rx, 0, Math.PI * 2);
-      cx.fill();
-      cx.restore();
-    }
-  }
-}
-
-export interface TextureSize {
-  w: number;
-  h: number;
-}
-
-function buildPlanetTexture(def: PlanetDef, size: TextureSize): THREE.CanvasTexture {
-  const w = size.w, h = size.h;
-  const cv = document.createElement('canvas');
-  cv.width = w; cv.height = h;
-  const cx = cv.getContext('2d')!;
-  const img = cx.createImageData(w, h);
-
-  const base      = new THREE.Color(def.baseColor);
-  const accent    = new THREE.Color(def.accentColor);
-  const highlight = new THREE.Color(def.highlight);
-  const terrain   = def.terrain ?? 'banded';
-  const scale     = 2.6;
-
-  const bandFreq   = terrain === 'turbulent' ? 7.5 : terrain === 'banded' ? 4.5 : 0;
-  const warpAmount = terrain === 'turbulent' ? 2.2 : terrain === 'banded' ? 0.7 : terrain === 'marbled' ? 1.6 : 0;
-  const bandWeight = terrain === 'turbulent' ? 0.55 : terrain === 'banded' ? 0.45 : terrain === 'marbled' ? 0.3 : 0;
-
-  for (let py = 0; py < h; py++) {
-    const lat = (py / h - 0.5) * Math.PI;
-    for (let px = 0; px < w; px++) {
-      const lon = (px / w) * Math.PI * 2;
-      const x = Math.cos(lat) * Math.cos(lon) * scale;
-      const y = Math.sin(lat) * scale;
-      const z = Math.cos(lat) * Math.sin(lon) * scale;
-
-      let n = fbm3(x, y, z, 5);
-      n += 0.25 * fbm3(x * 3.1 + 9, y * 3.1 + 9, z * 3.1 + 9, 3);
-
-      if (bandFreq > 0) {
-        const warp = fbm3(x * 1.4, y * 1.4, z * 1.4, 4) - 0.5;
-        const band = Math.sin(lat * bandFreq + warp * warpAmount) * 0.5 + 0.5;
-        n = n * (1 - bandWeight) + band * bandWeight;
-      }
-      if (terrain === 'marbled') {
-        const swirl = fbm3(x * 0.6 - 4, y * 0.6 - 4, z * 0.6 - 4, 4);
-        n += (swirl - 0.5) * 0.5;
-      }
-      n = Math.min(1, Math.max(0, n));
-
-      const grain    = fbm3(x * 11 + 31, y * 11 + 31, z * 11 + 31, 2);
-      const grainMul = 0.92 + grain * 0.16;
-
-      let r: number, g: number, b: number;
-      if (n < 0.4) {
-        const t = n / 0.4;
-        r = accent.r + (base.r - accent.r) * t;
-        g = accent.g + (base.g - accent.g) * t;
-        b = accent.b + (base.b - accent.b) * t;
-      } else if (n < 0.72) {
-        const t = (n - 0.4) / 0.32;
-        r = base.r + (highlight.r - base.r) * t * 0.55;
-        g = base.g + (highlight.g - base.g) * t * 0.55;
-        b = base.b + (highlight.b - base.b) * t * 0.55;
-      } else {
-        const t = Math.min(1, (n - 0.72) / 0.28);
-        r = base.r * (1 - t) + highlight.r * t;
-        g = base.g * (1 - t) + highlight.g * t;
-        b = base.b * (1 - t) + highlight.b * t;
-      }
-      r *= grainMul; g *= grainMul; b *= grainMul;
-
-      const i = (py * w + px) * 4;
-      img.data[i]     = Math.min(255, r * 255);
-      img.data[i + 1] = Math.min(255, g * 255);
-      img.data[i + 2] = Math.min(255, b * 255);
-      img.data[i + 3] = 255;
-    }
-  }
-  cx.putImageData(img, 0, 0);
-
-  if (terrain === 'cratered' || terrain === 'volcanic') {
-    paintCraters(cx, w, h, def, terrain === 'volcanic');
-  }
-  if (terrain === 'volcanic') {
-    paintCracks(cx, w, h, def);
-  }
-  if (terrain === 'marbled' || terrain === 'turbulent') {
-    paintStormSpots(cx, w, h, def, terrain === 'turbulent' ? 3 : 2);
-  }
-
-  const tex = new THREE.CanvasTexture(cv);
-  tex.wrapS = THREE.RepeatWrapping;
-  return tex;
-}
-
-export interface ProceduralPlanetOptions {
+export interface PlanetMeshOptions {
   segments?: number;
-  textureSize?: TextureSize;
 }
 
-export interface ProceduralPlanetHandle {
+export interface PlanetHandle {
   group: THREE.Group;
-  mesh:  THREE.Mesh;
+  mesh: THREE.Mesh;
   update: () => void;
+  ready: Promise<void>;
 }
 
-export function createProceduralPlanet(
+export function createPlanet(
   def: PlanetDef,
   radiusOverride?: number,
-  options: ProceduralPlanetOptions = {},
-): ProceduralPlanetHandle {
+  options: PlanetMeshOptions = {},
+): PlanetHandle {
   const group = new THREE.Group();
   const r = radiusOverride ?? def.size;
   const segments = options.segments ?? 48;
-  const textureSize = options.textureSize ?? { w: 640, h: 320 };
 
   const mat = new THREE.MeshStandardMaterial({
-    map:         buildPlanetTexture(def, textureSize),
-    roughness:   0.85,
-    metalness:   0.05,
+    roughness: def.materialRoughness ?? 0.92,
+    metalness: def.materialMetalness ?? 0.0,
     transparent: true,
-    opacity:     1,
+    opacity: 1,
+    envMapIntensity: 0.08,
+    emissive: new THREE.Color(0xffffff),
+    emissiveIntensity: 0.18,
   });
-  const mesh = new THREE.Mesh(new THREE.SphereGeometry(r, segments, segments), mat);
-  mesh.rotation.x = 0.15 + Math.random() * 0.12;
+
+  const readyPromises: Promise<unknown>[] = [];
+
+  if (def.texture) {
+    readyPromises.push(
+      loadTextureAsync(def.texture)
+        .then(tex => {
+          tex.anisotropy = 8;
+          mat.map = tex;
+          mat.emissiveMap = tex;
+          mat.needsUpdate = true;
+        })
+        .catch(err => console.warn(`[planets] failed to load texture: ${def.texture}`, err))
+    );
+  } else {
+    console.warn(`[planets] "${def.name}" has no texture defined.`);
+  }
+
+  const sphereR = r * (def.sphereScale ?? 1);
+  const mesh = new THREE.Mesh(new THREE.SphereGeometry(sphereR, segments, segments), mat);
+  const axialTilt = def.axialTilt ?? (0.15 + Math.random() * 0.12);
+  mesh.rotation.x = axialTilt;
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  mesh.layers.enable(5);
+  mesh.renderOrder = 0;
   group.add(mesh);
 
-  if (def.hasRing) {
-    const ringGeo = new THREE.RingGeometry(r * 1.55, r * 2.15, 64);
+  if (def.ring) {
+    const innerR = sphereR * 1.25;
+    const outerR = sphereR * 2.2;
+    const ringGeo = new THREE.RingGeometry(innerR, outerR, 256, 32);
+    remapRingUV(ringGeo, innerR, outerR);
+
     const ringMat = new THREE.MeshBasicMaterial({
-      color: def.glowColor, transparent: true, opacity: 0.28, side: THREE.DoubleSide, depthWrite: false,
+      transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false,
+      alphaTest: 0.04,
     });
     const ring = new THREE.Mesh(ringGeo, ringMat);
-    ring.rotation.x = Math.PI / 2.2;
+    ring.rotation.x = Math.PI / 2 + axialTilt;
+    ring.castShadow = true;
+    ring.receiveShadow = true;
+    ring.layers.enable(5);
+    ring.renderOrder = 1;
     group.add(ring);
+
+    readyPromises.push(
+      loadTextureAsync(def.ring)
+        .then(tex => {
+          tex.anisotropy = 16;
+          tex.wrapS = THREE.ClampToEdgeWrapping;
+          tex.wrapT = THREE.ClampToEdgeWrapping;
+          ringMat.map = tex;
+          ringMat.alphaMap = tex;
+          ringMat.opacity = 0.65;
+          ringMat.needsUpdate = true;
+        })
+        .catch(err => console.warn(`[planets] failed to load ring texture: ${def.ring}`, err))
+    );
+  }
+
+  if (def.atmosphere) {
+    const { day, dawn, night, opacity } = def.atmosphere;
+    const atmoMat = new THREE.ShaderMaterial({
+      vertexShader: atmosphereVert,
+      fragmentShader: atmosphereFrag,
+      uniforms: {
+        uSunPosition: { value: new THREE.Vector3(0, 0, 0) },
+        uDayColor: { value: new THREE.Color(day) },
+        uDawnColor: { value: new THREE.Color(dawn) },
+        uNightColor: { value: new THREE.Color(night) },
+        uOpacity: { value: opacity },
+        uPower: { value: 6.0 },
+      },
+      transparent: true,
+      side: THREE.BackSide,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
+    const atmo = new THREE.Mesh(new THREE.SphereGeometry(sphereR * 1.016, segments, segments), atmoMat);
+    atmo.castShadow = false;
+    atmo.receiveShadow = false;
+    group.add(atmo);
   }
 
   const spinSpeed = 0.0009 + Math.random() * 0.0006;
   const update = () => { mesh.rotation.y += spinSpeed; };
 
-  return { group, mesh, update };
+  const ready = Promise.all(readyPromises).then(() => {});
+
+  return { group, mesh, update, ready };
 }

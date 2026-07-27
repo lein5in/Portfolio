@@ -2,7 +2,7 @@ import React from 'react';
 import { Fade, mono, sectionLabel, divider } from './PortfolioLayout';
 import type { SectionId } from '../../three/sections';
 
-// ─── DATA ─────────────────────────────────────────────────────────────────────
+
 
 const skillGroups = [
   {
@@ -36,7 +36,7 @@ const softSkills = [
   'Self-directed',
 ];
 
-// ─── COMPONENT ────────────────────────────────────────────────────────────────
+
 
 interface SkillsSectionProps {
   setRef: (id: SectionId) => (el: HTMLElement | null) => void;
@@ -56,7 +56,7 @@ export default function SkillsSection({ setRef }: SkillsSectionProps) {
           </h2>
         </Fade>
 
-        {/* Skill groups */}
+        {}
         <div style={{
           display:       'flex',
           flexDirection: 'column',
@@ -75,7 +75,7 @@ export default function SkillsSection({ setRef }: SkillsSectionProps) {
               }}>
                 <div style={{
                   ...mono,
-                  fontSize:      11,
+                  fontSize:      12,
                   color:         'rgba(255,255,255,0.45)',
                   letterSpacing: '0.2em',
                   textTransform: 'uppercase',
@@ -83,19 +83,13 @@ export default function SkillsSection({ setRef }: SkillsSectionProps) {
                 } as React.CSSProperties}>
                   {g.label}
                 </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
                   {g.skills.map(s => (
                     <span
                       key={s}
                       style={skillTag}
-                      onMouseEnter={e => {
-                        e.currentTarget.style.color       = '#ffffff';
-                        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.45)';
-                      }}
-                      onMouseLeave={e => {
-                        e.currentTarget.style.color       = 'rgba(255,255,255,0.58)';
-                        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)';
-                      }}
+                      onMouseEnter={e => { e.currentTarget.style.color = '#ffffff'; }}
+                      onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.58)'; }}
                     >
                       {s}
                     </span>
@@ -105,7 +99,7 @@ export default function SkillsSection({ setRef }: SkillsSectionProps) {
             </Fade>
           ))}
 
-          {/* Soft skills row */}
+          {}
           <Fade>
             <div className="pf-skills-row" style={{
               padding:      '24px 0',
@@ -116,22 +110,19 @@ export default function SkillsSection({ setRef }: SkillsSectionProps) {
             }}>
               <div style={{
                 ...mono,
-                fontSize:      11,
+                fontSize:      12,
                 color:         'rgba(255,255,255,0.45)',
                 letterSpacing: '0.2em',
                 textTransform: 'uppercase',
               } as React.CSSProperties}>
                 Other
               </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
                 {softSkills.map(s => (
                   <span key={s} style={{
                     fontFamily:    "'Space Mono', monospace",
-                    fontSize:      11,
-                    color:         'rgba(255,255,255,0.42)',
-                    border:        '0.5px solid rgba(255,255,255,0.06)',
-                    padding:       '4px 10px',
-                    borderRadius:  2,
+                    fontSize:      12,
+                    color:         'rgba(255,255,255,0.55)',
                     letterSpacing: '0.06em',
                   }}>
                     {s}
@@ -147,11 +138,11 @@ export default function SkillsSection({ setRef }: SkillsSectionProps) {
   );
 }
 
-// ─── STYLES ───────────────────────────────────────────────────────────────────
+
 
 const sectionTitle: React.CSSProperties = {
   fontFamily:    "'Space Grotesk', sans-serif",
-  fontSize:      'clamp(42px,5.5vw,72px)',
+  fontSize:      'clamp(45.4px,5.5vw,77.8px)',
   fontWeight:    700,
   color:         '#ffffff',
   lineHeight:    1.0,
@@ -161,13 +152,9 @@ const sectionTitle: React.CSSProperties = {
 
 const skillTag: React.CSSProperties = {
   fontFamily:    "'Space Mono', monospace",
-  fontSize:      11,
+  fontSize:      12,
   color:         'rgba(255,255,255,0.72)',
-  background:    'transparent',
-  border:        '0.5px solid rgba(255,255,255,0.07)',
-  padding:       '5px 11px',
-  borderRadius:  2,
   letterSpacing: '0.06em',
   cursor:        'default',
-  transition:    'color 0.2s, border-color 0.2s',
+  transition:    'color 0.2s',
 };

@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Reset ── */
 *, *::before, *::after {
   margin: 0;
   padding: 0;
@@ -23,19 +22,11 @@ body {
   --font-mono:    'Space Mono', monospace;
 }
 
-/* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 2px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
 ::selection { background: rgba(255,255,255,0.15); }
 
-/* ── Responsive layout ──────────────────────────────────────────────────────
-   The whole site is built with inline styles (deliberately — see project
-   notes), which always beat an external stylesheet on specificity. The
-   handful of rules below use !important on purpose: it's the only way to
-   let a breakpoint override an inline value, and it's scoped to exactly the
-   properties that need to change per screen size. Everything else keeps
-   working exactly as it does today above 860px. */
 @media (max-width: 860px) {
   .pf-left-col      { width: 100% !important; }
   .pf-section-pad   { padding: 64px 24px !important; }
@@ -48,7 +39,13 @@ body {
   .pf-breakout      { width: min(94vw, 640px) !important; font-size: clamp(30px, 8vw, 44px) !important; }
   .pf-scrim         { background: linear-gradient(180deg, #0a0a0a 62%, rgba(10,10,10,0.55) 100%) !important; }
   .pf-universe-mount{ opacity: 0.32 !important; }
+  .pf-navbar        { padding: 20px 20px !important; }
+  .pf-nav-links     { gap: 20px !important; }
+  .pf-nav-links a, .pf-nav-links button { font-size: 11px !important; }
+  .pf-project-row   { flex-direction: column !important; align-items: flex-start !important; gap: 16px !important; }
+  .pf-project-thumb { flex: 0 0 auto !important; width: 100% !important; height: 160px !important; }
 }
 @media (max-width: 480px) {
   .pf-section-pad { padding: 48px 18px !important; }
+  .pf-project-thumb { height: 140px !important; }
 }

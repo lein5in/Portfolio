@@ -1,10 +1,11 @@
-import React from 'react';
-import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { FaGithub, FaArrowRight, FaTimes } from 'react-icons/fa';
 import { Fade, mono, sectionLabel, divider } from './PortfolioLayout';
 import ProjectGallery from './ProjectGallery';
+import GitHubActivityFeed from './GitHubActivityFeed';
+import { navigate } from '../../router';
 import type { SectionId } from '../../three/sections';
-
-// ─── DATA ─────────────────────────────────────────────────────────────────────
 
 const projects = [
   {
@@ -13,22 +14,13 @@ const projects = [
     subtitle: 'Modular Adaptive Response Assistant',
     status: 'Completed',
     period: 'Apr. 2026 — Jun. 2026',
-    summary: 'A fully local, voice-driven personal AI assistant inspired by JARVIS — built from scratch in Python, running 24/7 on a Windows laptop with sub-second response time.',
-    description: 'The key engineering insight behind MARA is parallel inference: Haiku and Sonnet run simultaneously. By the time Haiku classifies intent (~150ms), Sonnet has already started generating a response — eliminating nearly all perceived latency. Whisper runs locally on CUDA for STT, Fish Audio streams TTS in real-time via PCM, and a custom PyQt5 orb visualizes assistant state.',
-    bullets: [
-      'Push-to-talk via Logitech G502 sniper button mapped to F13 — hardware-level trigger',
-      'Parallel Haiku + Sonnet inference pipeline achieving <1s response on simple queries',
-      'Whisper turbo on CUDA for local STT — zero network dependency for speech recognition',
-      '10+ system control actions: volume, brightness, WiFi, screenshots, app management',
-      'Full browser automation via Selenium with encrypted credential storage',
-      'Vision mode — Claude Vision analyzes live screenshots for autonomous browser interaction',
-      'Persistent encrypted memory with Fernet + automatic conversation summarization',
-      '3D neural orb UI — custom PyQt5 OpenGL widget that pulses based on assistant state',
-    ],
+    summary: 'A fully local, voice-driven personal AI assistant inspired by JARVIS — built from scratch in Python, running 24/7 with sub-second response time.',
     tech: ['Python', 'Claude Sonnet 4.6', 'Claude Haiku', 'Whisper (CUDA)', 'Fish Audio', 'PyQt5', 'Selenium', 'Fernet'],
     github: 'https://github.com/lein5in/MARA',
-    live: null,
     images: ['/mara1.png', '/mara2.png'],
+    noThumb: false,
+    previewLabel: null as string | null,
+    caseStudy: '/case-study/mara',
   },
   {
     num: '02',
@@ -36,51 +28,54 @@ const projects = [
     subtitle: 'Chrome Extension + Study Platform',
     status: 'In Development',
     period: 'Apr. 2026 — Present',
-    summary: "A Chrome extension + web platform that lives in your browser as a study companion — knows your deadlines, helps you understand what you're reading, quizzes you on your material, and reduces cognitive load during high-stress periods.",
-    description: 'Seren is architectured across three layers: a Manifest V3 Chrome extension with a floating toolbar that surfaces on any text selection, a React + Vite frontend with a full dashboard, and a FastAPI backend with JWT auth and PostgreSQL. The extension and web platform share a JWT session — log in once on the site, state syncs instantly to the popup.',
-    bullets: [
-      'Floating AI toolbar on any text selection — instant Solve, Summarize, Quiz me, Save actions',
-      'SOS mode — overwhelmed? Seren surfaces exactly one task to focus on right now',
-      'Pomodoro focus timer with visual ring progress built into the extension popup',
-      'Full-tab mode — expand popup into a two-column app with sidebar + main panel',
-      '.ics calendar import — paste your uOzone schedule, deadlines appear automatically',
-      'FastAPI backend with JWT auth, 30-day sessions, full account management',
-    ],
+    summary: "A Chrome extension + web platform that lives in your browser as a study companion — knows your deadlines, quizzes you, reduces cognitive load during high-stress periods.",
     tech: ['React', 'TypeScript', 'FastAPI', 'Claude API', 'PostgreSQL', 'Chrome MV3', 'JWT', 'SQLAlchemy'],
     github: 'https://github.com/lein5in/Seren',
-    live: null,
     images: ['/seren1.png', '/seren2.png', '/seren3.png'],
+    noThumb: false,
+    previewLabel: null as string | null,
+    caseStudy: '/case-study/seren',
   },
   {
     num: '03',
+    title: 'AITradingAgent',
+    subtitle: 'Multi-Agent Algorithmic Trading System',
+    status: 'Active',
+    period: 'Jan. 2026 — Present',
+    summary: 'An event-driven, multi-agent crypto trading system built on one rule: every strategy has to clear backtesting and a fixed significance bar before it touches real capital.',
+    tech: ['Python', 'FastAPI', 'Redis', 'PostgreSQL', 'TimescaleDB', 'ccxt', 'Pydantic'],
+    github: null as string | null,
+    images: [] as string[],
+    noThumb: false,
+    previewLabel: 'SOON',
+    caseStudy: '/case-study/aitradingagent',
+  },
+  {
+    num: '04',
     title: 'This Portfolio',
     subtitle: 'Interactive 3D Portfolio',
     status: 'Completed',
     period: 'Jun. 2026',
-    summary: 'A portfolio built around the concept of a view from a plane window — featuring a photorealistic Three.js Earth, custom GLSL shaders, an entry screen with HUD data overlays, and a scroll-driven layout with globe-anchored section markers.',
-    description: 'The entry screen renders a photoreal Earth inside a first-class cabin porthole using Three.js with alpha transparency, a custom atmosphere rim-light shader, procedural cloud texture, night city lights, and stars. The portfolio layout keeps the globe fixed to the right while content scrolls left.',
-    bullets: [
-      'Custom GLSL atmosphere shader with rim-lighting and additive blending',
-      'Procedural cloud texture generated on canvas at runtime (2048×1024)',
-      'Parallel sun + night lights with per-section color temperature transitions',
-      '3D rotating cube markers on globe surface — glow + pulse on active section',
-      'Entry screen with HUD data overlay and cursor light canvas effect',
-      'GSAP ScrollTrigger — scroll-driven entrance animations throughout',
-    ],
+    summary: 'A portfolio built around a photorealistic Three.js solar system — camera flies to a planet per section, GLSL atmosphere shaders, GSAP-driven transitions throughout.',
     tech: ['React', 'TypeScript', 'Three.js', 'GLSL', 'GSAP', 'Vite', 'EmailJS'],
     github: 'https://github.com/lein5in/Portfolio',
-    live: null,
     images: [] as string[],
+    previewLabel: null as string | null,
+    noThumb: true,
+    caseStudy: '/build',
   },
 ];
 
-// ─── COMPONENT ────────────────────────────────────────────────────────────────
+type Project = typeof projects[number];
 
 interface ProjectsSectionProps {
   setRef: (id: SectionId) => (el: HTMLElement | null) => void;
 }
 
 export default function ProjectsSection({ setRef }: ProjectsSectionProps) {
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
+  const openProject = openIdx !== null ? projects[openIdx] : null;
+
   return (
     <>
       <div className="pf-divider" style={divider} />
@@ -95,241 +90,249 @@ export default function ProjectsSection({ setRef }: ProjectsSectionProps) {
         </Fade>
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          {projects.map((p, idx) => (
-            <Fade key={p.title} delay={idx * 0.06}>
-              <div style={{
-                borderBottom: '0.5px solid rgba(255,255,255,0.05)',
-                paddingBottom: 60,
-                marginBottom:  60,
-              }}>
-                {/* Header */}
-                <div style={{
-                  display:        'flex',
-                  alignItems:     'flex-start',
-                  justifyContent: 'space-between',
-                  marginBottom:   20,
-                  gap:            16,
-                  flexWrap:       'wrap',
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 16 }}>
-                    <span style={{
-                      ...mono,
-                      fontSize:      12,
-                      color:         'rgba(255,255,255,0.32)',
-                      letterSpacing: '0.12em',
+          {projects.map((p, i) => (
+            <Fade key={p.title} delay={i * 0.05}>
+              <button
+                onClick={() => setOpenIdx(i)}
+                className="pf-project-row"
+                style={{
+                  display:       'flex',
+                  alignItems:    'center',
+                  gap:           32,
+                  width:         '100%',
+                  textAlign:     'left',
+                  background:    'none',
+                  border:        'none',
+                  borderBottom:  '0.5px solid rgba(255,255,255,0.06)',
+                  padding:       '28px 0',
+                  cursor:        'pointer',
+                }}
+              >
+                <div style={{ flex: p.noThumb ? '1 1 100%' : '1 1 55%', display: 'flex', alignItems: 'baseline', gap: 18 }}>
+                  <span style={{ ...mono, fontSize: 13, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.1em' } as React.CSSProperties}>
+                    {p.num}
+                  </span>
+                  <div>
+                    <div style={{
+                      fontFamily: "'Space Grotesk', sans-serif",
+                      fontSize:   24.2,
+                      fontWeight: 600,
+                      color:      '#ffffff',
+                      marginBottom: 8,
+                      letterSpacing: '-0.01em',
                     }}>
-                      {p.num}
-                    </span>
-                    <div>
-                      <h3 style={{
-                        fontFamily:    "'Space Grotesk', sans-serif",
-                        fontSize:      28,
-                        color:         '#ffffff',
-                        fontWeight:    700,
-                        lineHeight:    1,
-                        marginBottom:  6,
-                        letterSpacing: '-0.02em',
-                      }}>
-                        {p.title}
-                      </h3>
-                      <div style={{
-                        ...mono,
-                        fontSize:      12,
-                        color:         'rgba(255,255,255,0.48)',
-                        letterSpacing: '0.14em',
-                      }}>
-                        {p.subtitle}
+                      {p.title}
+                    </div>
+                    <div style={{
+                      fontFamily: "'Space Mono', monospace",
+                      fontSize:   13.5,
+                      color:      'rgba(255,255,255,0.55)',
+                      lineHeight: 1.65,
+                      maxWidth:   p.noThumb ? 640 : 420,
+                    }}>
+                      {p.summary}
+                    </div>
+                  </div>
+                </div>
+
+                {!p.noThumb && (
+                  <div className="pf-project-thumb" style={{
+                    flex:         '0 0 220px',
+                    height:       130,
+                    borderRadius: 4,
+                    overflow:     'hidden',
+                    background:   'rgba(255,255,255,0.02)',
+                    border:       '0.5px solid rgba(255,255,255,0.07)',
+                  }}>
+                    {p.images[0] ? (
+                      <img
+                        src={p.images[0]}
+                        alt={p.title}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <span style={{ ...mono, fontSize: p.previewLabel === 'SOON' ? 13 : 11, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.14em' } as React.CSSProperties}>
+                          {p.previewLabel ?? 'NO PREVIEW'}
+                        </span>
                       </div>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
-                    <span style={{
-                      ...mono,
-                      fontSize:      11,
-                      letterSpacing: '0.1em',
-                      padding:       '3px 10px',
-                      borderRadius:  2,
-                      border:        p.status === 'Completed'
-                        ? '0.5px solid rgba(126,207,160,0.3)'
-                        : '0.5px solid rgba(255,255,255,0.15)',
-                      color: p.status === 'Completed'
-                        ? '#7ecfa0'
-                        : 'rgba(255,255,255,0.4)',
-                    }}>
-                      {p.status}
-                    </span>
-                    <span style={{
-                      ...mono,
-                      fontSize:      11,
-                      color:         'rgba(255,255,255,0.58)',
-                      letterSpacing: '0.08em',
-                    }}>
-                      {p.period}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Summary */}
-                <p style={{
-                  fontFamily: "'Space Mono', monospace",
-                  fontSize:   14.5,
-                  color:      'rgba(255,255,255,0.68)',
-                  lineHeight: 1.9,
-                  maxWidth:   520,
-                  marginBottom: 16,
-                }}>
-                  {p.summary}
-                </p>
-
-                {/* Description */}
-                <p style={{
-                  fontFamily:  "'Space Mono', monospace",
-                  fontSize:    12.5,
-                  color:       'rgba(255,255,255,0.62)',
-                  lineHeight:  1.95,
-                  maxWidth:    520,
-                  marginBottom: 24,
-                  borderLeft:  '1px solid rgba(255,255,255,0.09)',
-                  paddingLeft: 16,
-                }}>
-                  {p.description}
-                </p>
-
-                {/* Bullets */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 28 }}>
-                  {p.bullets.map(b => (
-                    <div key={b} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                      <span style={{
-                        color:     'rgba(255,255,255,0.45)',
-                        flexShrink: 0,
-                        fontSize:  12,
-                        marginTop: 2,
-                      }}>
-                        —
-                      </span>
-                      <span style={{
-                        fontFamily: "'Space Mono', monospace",
-                        fontSize:   12,
-                        color:      'rgba(255,255,255,0.62)',
-                        lineHeight: 1.75,
-                      }}>
-                        {b}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Footer — tech + links */}
-                <div style={{
-                  display:        'flex',
-                  alignItems:     'center',
-                  justifyContent: 'space-between',
-                  flexWrap:       'wrap',
-                  gap:            12,
-                }}>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                    {p.tech.map(t => (
-                      <span key={t} style={techTag}>{t}</span>
-                    ))}
-                  </div>
-                  <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
-                    {p.images && p.images.length > 0 && (
-                      <ProjectGallery images={p.images} />
-                    )}
-                    {p.github && (
-                      <a
-                        href={p.github}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={linkStyle}
-                        onMouseEnter={e => { e.currentTarget.style.color = '#fff'; }}
-                        onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.48)'; }}
-                      >
-                        <FaGithub size={12} /> GITHUB
-                      </a>
-                    )}
-                    {p.live && (
-                      <a
-                        href={p.live}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={linkStyle}
-                        onMouseEnter={e => { e.currentTarget.style.color = '#fff'; }}
-                        onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.48)'; }}
-                      >
-                        <FaExternalLinkAlt size={11} /> LIVE
-                      </a>
                     )}
                   </div>
-                </div>
-              </div>
+                )}
+              </button>
             </Fade>
           ))}
         </div>
 
-        {/* GitHub CTA */}
+        <div style={{ marginTop: 40 }}>
         <Fade>
           <a
             href="https://github.com/lein5in"
             target="_blank"
             rel="noopener noreferrer"
             style={githubCta}
-            onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.opacity = '1'; }}
-            onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.3)'; e.currentTarget.style.opacity = '1'; }}
+            onMouseEnter={e => { e.currentTarget.style.color = '#fff'; }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; }}
           >
             <FaGithub size={12} /> MORE ON GITHUB →
           </a>
         </Fade>
 
+        <Fade>
+          <GitHubActivityFeed />
+        </Fade>
+        </div>
+
       </section>
+
+      {openProject && createPortal(
+        <ProjectModal project={openProject} onClose={() => setOpenIdx(null)} />,
+        document.body
+      )}
     </>
   );
 }
 
-// ─── STYLES ───────────────────────────────────────────────────────────────────
+function ProjectModal({ project, onClose }: { project: Project; onClose: () => void }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  return (
+    <div style={overlayStyle} onClick={onClose}>
+      <div style={cardStyle} onClick={e => e.stopPropagation()}>
+        <button onClick={onClose} style={closeBtnStyle} aria-label="Close">
+          <FaTimes size={13} />
+        </button>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+          <span style={{
+            width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
+            background: project.status === 'Completed' ? '#7ecfa0' : 'rgba(255,255,255,0.4)',
+          }} />
+          <span style={{ ...mono, fontSize: 12, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' } as React.CSSProperties}>
+            {project.status} · {project.period}
+          </span>
+        </div>
+
+        <h3 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 35.2, fontWeight: 600, color: '#fff', marginBottom: 6, letterSpacing: '-0.01em' }}>
+          {project.title}
+        </h3>
+        <div style={{ ...mono, fontSize: 14, color: 'rgba(255,255,255,0.55)', marginBottom: 22 } as React.CSSProperties}>
+          {project.subtitle}
+        </div>
+
+        <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 14.5, color: 'rgba(255,255,255,0.7)', lineHeight: 1.85, marginBottom: 28 }}>
+          {project.summary}
+        </p>
+
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, marginBottom: 32 }}>
+          {project.tech.map(t => (
+            <span key={t} style={{ ...mono, fontSize: 12, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.06em' } as React.CSSProperties}>
+              {t}
+            </span>
+          ))}
+        </div>
+
+        <div style={{ display: 'flex', gap: 28, flexWrap: 'wrap', borderTop: '0.5px solid rgba(255,255,255,0.08)', paddingTop: 24 }}>
+          {project.github && (
+            <a href={project.github} target="_blank" rel="noopener noreferrer" style={modalLinkStyle}
+              onMouseEnter={e => { e.currentTarget.style.color = '#fff'; }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; }}
+            >
+              <FaGithub size={13} /> VIEW ON GITHUB
+            </a>
+          )}
+          {project.images.length > 0 && (
+            <ProjectGallery images={project.images} label="VIEW IMAGES" />
+          )}
+          {project.caseStudy && (
+            <button
+              onClick={() => { onClose(); navigate(project.caseStudy); }}
+              style={{ ...modalLinkStyle, background: 'none', border: 'none', cursor: 'pointer' }}
+              onMouseEnter={e => { e.currentTarget.style.color = '#fff'; }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; }}
+            >
+              <FaArrowRight size={12} /> CASE STUDY
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const sectionTitle: React.CSSProperties = {
   fontFamily:    "'Space Grotesk', sans-serif",
-  fontSize:      'clamp(42px,5.5vw,72px)',
-  fontWeight:    700,
+  fontSize:      'clamp(45.4px,5.5vw,77.8px)',
+  fontWeight:    600,
   color:         '#ffffff',
   lineHeight:    1.0,
   letterSpacing: '-0.025em',
   marginBottom:  56,
 };
 
-const techTag: React.CSSProperties = {
-  fontFamily:    "'Space Mono', monospace",
-  fontSize:      11,
-  color:         'rgba(255,255,255,0.72)',
-  background:    'rgba(255,255,255,0.03)',
-  border:        '0.5px solid rgba(255,255,255,0.08)',
-  padding:       '4px 10px',
-  borderRadius:  2,
-  letterSpacing: '0.08em',
-};
-
-const linkStyle: React.CSSProperties = {
-  display:       'flex',
-  alignItems:    'center',
-  gap:           6,
-  fontFamily:    "'Space Mono', monospace",
-  fontSize:      12,
-  letterSpacing: '0.14em',
-  color:         'rgba(255,255,255,0.48)',
-  textDecoration: 'none',
-  transition:    'color 0.2s',
-};
-
 const githubCta: React.CSSProperties = {
-  display:       'inline-flex',
-  alignItems:    'center',
-  gap:           8,
-  fontFamily:    "'Space Mono', monospace",
-  fontSize:      12,
-  letterSpacing: '0.18em',
-  color:         'rgba(255,255,255,0.72)',
+  display:        'inline-flex',
+  alignItems:     'center',
+  gap:            8,
+  fontFamily:     "'Space Mono', monospace",
+  fontSize:       13,
+  letterSpacing:  '0.18em',
+  color:          'rgba(255,255,255,0.6)',
   textDecoration: 'none',
-  transition:    'color 0.2s',
+  transition:     'color 0.2s',
+};
+
+const overlayStyle: React.CSSProperties = {
+  position:       'fixed',
+  inset:          0,
+  background:     'rgba(6,6,6,0.88)',
+  zIndex:         200,
+  display:        'flex',
+  alignItems:     'center',
+  justifyContent: 'center',
+  padding:        24,
+};
+
+const cardStyle: React.CSSProperties = {
+  position:     'relative',
+  width:        '100%',
+  maxWidth:     560,
+  maxHeight:    '86vh',
+  overflowY:    'auto',
+  background:   '#0d0d0d',
+  border:       '0.5px solid rgba(255,255,255,0.1)',
+  borderRadius: 4,
+  padding:      '40px 40px 32px',
+};
+
+const closeBtnStyle: React.CSSProperties = {
+  position:     'absolute',
+  top:          20,
+  right:        20,
+  background:   'none',
+  border:       '1px solid rgba(255,255,255,0.15)',
+  borderRadius: '50%',
+  width:        30,
+  height:       30,
+  display:      'flex',
+  alignItems:   'center',
+  justifyContent: 'center',
+  color:        'rgba(255,255,255,0.6)',
+  cursor:       'pointer',
+};
+
+const modalLinkStyle: React.CSSProperties = {
+  display:        'flex',
+  alignItems:     'center',
+  gap:            8,
+  fontFamily:     "'Space Mono', monospace",
+  fontSize:       13,
+  letterSpacing:  '0.14em',
+  color:          'rgba(255,255,255,0.6)',
+  textDecoration: 'none',
+  transition:     'color 0.2s',
 };

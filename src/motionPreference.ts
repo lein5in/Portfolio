@@ -40,8 +40,7 @@ export function useReducedMotion(): [boolean, (value: boolean) => void] {
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     const onChange = () => {
-      // Only follow the system live if the person hasn't made an explicit
-      // manual choice in this browser.
+      
       if (readStoredPreference() === null) setValue(mq.matches);
     };
     mq.addEventListener('change', onChange);

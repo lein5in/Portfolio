@@ -1,8 +1,5 @@
 import * as THREE from 'three';
-
-// ─── PLASMA SUN SHADER ──────────────────────────────────────────────────────
-// Real-time animated turbulence (value-noise fbm) — the surface actually
-// churns like plasma, rather than a static painted texture.
+import { loadTextureAsync } from './textureLoad';
 
 const sunVert = /* glsl */ `
   varying vec3 vPos;
@@ -15,77 +12,105 @@ const sunVert = /* glsl */ `
 `;
 
 const sunFrag = /* glsl */ `
+  uniform sampler2D uMap;
   uniform float uTime;
   uniform float uOpacity;
   varying vec3 vPos;
   varying vec3 vNormal;
 
-  float hash(vec3 p) {
-    p = fract(p * 0.3183099 + vec3(0.1, 0.2, 0.3));
-    p *= 17.0;
-    return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
-  }
-
-  float vnoise(vec3 x) {
-    vec3 i = floor(x);
-    vec3 f = fract(x);
-    f = f * f * (3.0 - 2.0 * f);
-    return mix(
-      mix(mix(hash(i + vec3(0,0,0)), hash(i + vec3(1,0,0)), f.x),
-          mix(hash(i + vec3(0,1,0)), hash(i + vec3(1,1,0)), f.x), f.y),
-      mix(mix(hash(i + vec3(0,0,1)), hash(i + vec3(1,0,1)), f.x),
-          mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x), f.y),
-      f.z);
-  }
-
-  float fbm(vec3 p) {
-    float v = 0.0;
-    float a = 0.5;
-    for (int i = 0; i < 5; i++) {
-      v += a * vnoise(p);
-      p *= 2.05;
-      a *= 0.5;
-    }
-    return v;
-  }
+  #define PI 3.14159265359
 
   void main() {
-    vec3 p = normalize(vPos) * 3.2;
-    float t = uTime * 0.08;
-    float n = fbm(p + vec3(t, -t * 0.7, t * 0.4));
-    n += 0.4 * fbm(p * 2.4 + vec3(-t * 1.3, t * 0.9, t));
+    vec3 dir = normalize(vPos);
+    float lon = atan(dir.z, dir.x) / (2.0 * PI) + 0.5;
+    float lat = asin(clamp(dir.y, -1.0, 1.0)) / PI + 0.5;
 
-    vec3 coolC = vec3(0.85, 0.24, 0.02);
-    vec3 midC  = vec3(1.0, 0.56, 0.12);
-    vec3 hotC  = vec3(1.0, 0.85, 0.5);
+    vec2 uv = vec2(lon + uTime * 0.004, lat);
+    vec3 texColor = texture2D(uMap, uv).rgb;
 
-    vec3 col = mix(coolC, midC, smoothstep(0.25, 0.65, n));
-    col = mix(col, hotC, smoothstep(0.62, 0.95, n));
+    float facing = abs(dot(normalize(vNormal), vec3(0.0, 0.0, 1.0)));
+    float limbDarkening = mix(0.4, 1.0, pow(facing, 0.5));
 
-    float rim = 1.0 - abs(dot(normalize(vNormal), vec3(0.0, 0.0, 1.0)));
-    col += hotC * pow(rim, 3.0) * 0.25;
+    vec3 col = texColor * vec3(1.65, 1.3, 0.98) * limbDarkening;
 
     gl_FragColor = vec4(col, uOpacity);
   }
 `;
 
+function createGlowTexture(): THREE.CanvasTexture {
+  const size = 512;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d')!;
+  const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+  gradient.addColorStop(0.0, 'rgba(255,248,228,0.9)');
+  gradient.addColorStop(0.14, 'rgba(255,210,130,0.55)');
+  gradient.addColorStop(0.32, 'rgba(255,150,70,0.2)');
+  gradient.addColorStop(0.55, 'rgba(255,110,50,0.06)');
+  gradient.addColorStop(1.0, 'rgba(255,90,40,0.0)');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, size, size);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.needsUpdate = true;
+  return tex;
+}
+
 export interface SunHandle {
-  mesh: THREE.Mesh;
+  mesh: THREE.Object3D;
   material: THREE.ShaderMaterial;
+  setOpacity: (v: number) => void;
   update: (elapsedSeconds: number) => void;
+  ready: Promise<void>;
 }
 
 export function createSun(radius = 1.25): SunHandle {
+  const texture = new THREE.Texture();
+
   const material = new THREE.ShaderMaterial({
-    vertexShader:   sunVert,
+    vertexShader: sunVert,
     fragmentShader: sunFrag,
     uniforms: {
-      uTime:    { value: 0 },
+      uMap: { value: texture },
+      uTime: { value: 0 },
       uOpacity: { value: 1 },
     },
     transparent: true,
   });
-  const mesh = new THREE.Mesh(new THREE.SphereGeometry(radius, 64, 64), material);
-  const update = (elapsedSeconds: number) => { material.uniforms.uTime.value = elapsedSeconds; };
-  return { mesh, material, update };
+
+  const core = new THREE.Mesh(new THREE.SphereGeometry(radius, 64, 64), material);
+
+  const glowMaterial = new THREE.SpriteMaterial({
+    map: createGlowTexture(),
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    color: new THREE.Color(1.7, 1.15, 0.65),
+  });
+  const glow = new THREE.Sprite(glowMaterial);
+  glow.scale.set(radius * 2.35, radius * 2.35, 1);
+
+  const group = new THREE.Group();
+  group.add(glow, core);
+
+  const ready = loadTextureAsync('/textures/8k_sun.jpg')
+    .then(tex => {
+      tex.wrapS = THREE.RepeatWrapping;
+      tex.wrapT = THREE.ClampToEdgeWrapping;
+      material.uniforms.uMap.value = tex;
+    })
+    .catch(err => {
+      console.warn('[sun] failed to load /textures/8k_sun.jpg', err);
+    });
+
+  const setOpacity = (v: number) => {
+    material.uniforms.uOpacity.value = v;
+    glowMaterial.opacity = v;
+  };
+
+  const update = (elapsedSeconds: number) => {
+    material.uniforms.uTime.value = elapsedSeconds;
+  };
+
+  return { mesh: group, material, setOpacity, update, ready };
 }

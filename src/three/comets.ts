@@ -1,15 +1,6 @@
 import * as THREE from 'three';
 
-// ─── COMETS ─────────────────────────────────────────────────────────────────
-// Purely decorative background flourish: a bright head + a fading tail that
-// streaks across the far background at irregular intervals. Built the same
-// way as the nebula sprites in Universe.tsx — canvas-generated textures,
-// zero network dependency, cheap to run alongside the rest of the scene.
-//
-// The tail's "fade" isn't real alpha blending on the line — LineBasicMaterial
-// vertex colors don't carry an alpha channel — it's colors darkening toward
-// black under AdditiveBlending, which reads identically against a black
-// background and is far cheaper than a custom shader.
+
 
 const TRAIL_POINTS = 22;
 const TRAIL_SPACING = 0.6;
@@ -67,17 +58,13 @@ function createComet(headTexture: THREE.CanvasTexture): Comet {
   };
 }
 
-/** Picks a fresh start/end pair that streaks past the system at a random
- *  angle, and resets the comet's timer. */
 function launch(c: Comet) {
   const radius = 55 + Math.random() * 30;
   const angle  = Math.random() * Math.PI * 2;
   const height = (Math.random() - 0.5) * 45;
   c.start.set(Math.cos(angle) * radius, height, Math.sin(angle) * radius);
 
-  // Aim loosely through the system's neighborhood (not necessarily dead
-  // center) so most streaks stay in the background, not directly on top of
-  // the planets.
+ 
   const through = new THREE.Vector3(
     (Math.random() - 0.5) * 26,
     (Math.random() - 0.5) * 18,
@@ -96,11 +83,8 @@ export interface CometSystemHandle {
   update: (dt: number) => void;
 }
 
-/**
- * `maxConcurrent` comets are pre-built and pooled; the update loop launches
- * an idle one every `minGap`–`maxGap` seconds. Everything is additive and
- * depthWrite:false, so it's safe to add straight to the main scene.
- */
+
+ 
 export function createCometSystem(
   maxConcurrent = 2,
   minGap = 9,
@@ -117,7 +101,7 @@ export function createCometSystem(
 
   const tailColor = new THREE.Color(0xbfd9ff);
   let clock = 0;
-  let nextSpawn = 3 + Math.random() * 5; // first one arrives a little sooner
+  let nextSpawn = 3 + Math.random() * 5; 
 
   const tmpHead = new THREE.Vector3();
   const tmpPoint = new THREE.Vector3();
@@ -143,7 +127,7 @@ export function createCometSystem(
 
       tmpHead.copy(c.start).lerp(c.end, t);
 
-      // Quick fade in, gentle fade out — avoids a hard pop at either end.
+      
       const fadeIn  = Math.min(1, t / 0.06);
       const fadeOut = Math.min(1, (1 - t) / 0.22);
       const envelope = Math.min(fadeIn, fadeOut);
