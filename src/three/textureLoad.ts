@@ -35,7 +35,7 @@ export async function loadTextureAsync(url: string): Promise<THREE.Texture> {
           image.addEventListener('error', () => reject(new Error('image load error')), { once: true });
         });
       } catch {
-        /* la texture reste utilisable même si la vérification échoue */
+        
       }
     }
   }

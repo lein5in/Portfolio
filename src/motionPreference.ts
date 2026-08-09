@@ -1,13 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-// ─── REDUCED MOTION ─────────────────────────────────────────────────────────
-// Two sources feed the final value:
-//  1. The OS-level `prefers-reduced-motion` setting — respected automatically,
-//     no opt-in required.
-//  2. A manual toggle in the UI, for people who want less motion without
-//     having that system setting on. Once someone touches the toggle, their
-//     explicit choice persists (localStorage) and stops tracking the system
-//     setting — an explicit choice should never be silently overridden.
+
 
 const STORAGE_KEY = 'pf-reduced-motion';
 
