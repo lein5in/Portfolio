@@ -56,6 +56,15 @@ function createGlowTexture(): THREE.CanvasTexture {
   return tex;
 }
 
+function buildFallbackColorTexture(hex: string): THREE.CanvasTexture {
+  const cv = document.createElement('canvas');
+  cv.width = cv.height = 4;
+  const cx = cv.getContext('2d')!;
+  cx.fillStyle = hex;
+  cx.fillRect(0, 0, 4, 4);
+  return new THREE.CanvasTexture(cv);
+}
+
 export interface SunHandle {
   mesh: THREE.Object3D;
   material: THREE.ShaderMaterial;
@@ -65,7 +74,7 @@ export interface SunHandle {
 }
 
 export function createSun(radius = 1.25): SunHandle {
-  const texture = new THREE.Texture();
+  const texture = buildFallbackColorTexture('#ffb347');
 
   const material = new THREE.ShaderMaterial({
     vertexShader: sunVert,

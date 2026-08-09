@@ -34,6 +34,7 @@ export interface EarthHandle {
   nightMesh: THREE.Mesh;
   atmosphere: THREE.Mesh;
   update: () => void;
+  dayReady: Promise<void>;
   ready: Promise<void>;
 }
 
@@ -158,5 +159,5 @@ export function createEarth(radius = 1, options: EarthOptions = {}): EarthHandle
 
   const ready = Promise.all([dayReady, cloudsReady, nightReady]).then(() => {});
 
-  return { group, earth, clouds, nightMesh, atmosphere, update, ready };
+  return { group, earth, clouds, nightMesh, atmosphere, update, dayReady: dayReady.then(() => {}), ready };
 }

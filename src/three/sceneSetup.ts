@@ -75,8 +75,8 @@ export function buildScene(scene: THREE.Scene, isSmallScreen: boolean): SceneCon
 
   const bodies: Body[] = [];
   const orbitLines: { line: THREE.Line; isHero: boolean }[] = [];
-  const criticalReady: Promise<unknown>[] = [sun.ready];
-  const backgroundReady: Promise<unknown>[] = [];
+  const criticalReady: Promise<unknown>[] = [];
+  const backgroundReady: Promise<unknown>[] = [sun.ready];
 
   const starfield = createStarfield();
   scene.add(starfield.group);
@@ -88,7 +88,8 @@ export function buildScene(scene: THREE.Scene, isSmallScreen: boolean): SceneCon
 
   const earthHandle = createEarth(EARTH_DEF.size, { segments: segments.earth });
   scene.add(earthHandle.group);
-  criticalReady.push(earthHandle.ready);
+  criticalReady.push(earthHandle.dayReady);
+  backgroundReady.push(earthHandle.ready);
   bodies.push({
     def: EARTH_DEF,
     group: earthHandle.group,
