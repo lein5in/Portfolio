@@ -16,12 +16,12 @@ export interface CaseStudyData {
 }
 
 export const CASE_STUDIES: Record<string, CaseStudyData> = {
-  mara: {
+ mara: {
     slug: 'mara',
     title: 'MARA',
     subtitle: 'Modular Adaptive Response Assistant',
     status: 'Active — running daily since early 2026',
-    stack: ['Python', 'Claude Sonnet 4.6', 'Claude Haiku', 'Whisper (CUDA)', 'PyQt5', 'Selenium', 'Fernet'],
+    stack: ['Python', 'Claude Sonnet 5', 'Claude Haiku', 'Whisper (CUDA)', 'PyQt5', 'Selenium', 'Fernet'],
     repoLabel: 'github.com/lein5in/MARA',
     repoHref: 'https://github.com/lein5in/MARA',
     sections: [
@@ -33,17 +33,17 @@ export const CASE_STUDIES: Record<string, CaseStudyData> = {
         ],
       },
       {
-        heading: 'The latency problem, and how it was solved',
+        heading: 'Routing without a blind classifier',
         paragraphs: [
-          'The core engineering constraint was perceived response time. A naive pipeline — transcribe, classify intent, generate response, synthesize speech — stacks four sequential calls before the user hears anything.',
-          "MARA's pipeline runs two Claude models in parallel instead of in sequence: Haiku classifies intent (~150ms) while Sonnet 4.6 has already started streaming a full response. By the time intent classification resolves, generation is already underway. Perceived latency drops to the length of the slower of the two calls rather than their sum.",
-          'Speech-to-text runs entirely locally on CUDA via Whisper turbo, which removes network latency from the slowest part of a naive pipeline and keeps raw audio off any external server.',
+          'An early version of MARA split the work across two Claude models: a lightweight classifier read the latest message in isolation and decided what MARA should do — reply normally, generate a chart, look at the screen — while a second model streamed a full response in parallel, on the bet that the classification wouldn\'t change anything. It usually worked, but a classifier reading one sentence with no memory of the conversation will occasionally misfire on exactly the sentence that needed the context most — asking for a spoken recap of a conversation, for instance, getting reinterpreted as a request for a rendered chart because the word "summary" matched a keyword.',
+          "The fix was architectural, not a prompt tweak: give the single model that already holds the full conversation a set of native tools — generate a visual, look at the screen, touch memory, reset the session — and let it decide for itself, in context, whether to just answer or invoke one of them. Claude Haiku still runs in parallel for what it's actually well-suited to at that speed: detecting the language of the message, so the perceived-latency gain survives without any model routing a request based on a single sentence stripped of everything said before it.",
+          'Speech-to-text still runs entirely locally on CUDA via Whisper turbo, keeping network latency and raw audio out of the slowest part of the pipeline entirely.',
         ],
         diagram:
-          'Push-to-talk -> Whisper (local, CUDA) -> Haiku (intent)   -\n' +
-          '                                                            |- parallel\n' +
-          '                                     -> Sonnet 4.6 (response) -\n' +
-          '                                                            v\n' +
+          'Push-to-talk -> Whisper (local, CUDA) -> Sonnet 5, full context + native tools   -\n' +
+          '                                                                                    |- parallel\n' +
+          '                                                    -> Haiku (language detection) -\n' +
+          '                                                                                    v\n' +
           '                                     Fish Audio streaming TTS',
       },
       {
@@ -56,14 +56,14 @@ export const CASE_STUDIES: Record<string, CaseStudyData> = {
       {
         heading: 'Memory and reliability',
         paragraphs: [
-          'MARA keeps encrypted, persistent memory across sessions (Fernet), summarized automatically as conversation history grows rather than kept as an ever-expanding transcript. The UI runs on a thread-safe PyQt5 architecture — audio capture, model inference, and rendering happen on separate threads communicating through Qt signals, which was the only practical way to keep an always-on-top floating window responsive while a GPU model transcribes in the background.',
-          'The system boots silently on Windows startup via Task Scheduler and has been running continuously since it was built — not a proof of concept, but the assistant actually used day to day. Total running cost sits around $3.50–6.50/month in API usage; Whisper, the UI, and system control all run at zero marginal cost locally.',
+          'MARA keeps encrypted, persistent memory across sessions (Fernet) — facts, preferences, and ongoing context, surfaced only when actually relevant rather than recited back. Conversation history is capped at a rolling window rather than left to grow unbounded, keeping every turn within the model\'s working context without extra summarization overhead. The UI runs on a thread-safe PyQt5 architecture — audio capture, model inference, and rendering happen on separate threads communicating through Qt signals, which was the only practical way to keep an always-on-top floating window responsive while a GPU model transcribes in the background.',
+          "MARA launches on demand rather than silently at boot — a deliberate choice after running both ways, favoring an explicit start over a background process competing for GPU and CPU priority. It's been running continuously in daily use since it was built — not a proof of concept. Total running cost sits around $3.50–7.50/month in API usage; Whisper, the UI, and system control all run at zero marginal cost locally.",
         ],
       },
       {
         heading: 'What this project demonstrates',
         paragraphs: [
-          'Real-time systems work under a hard latency budget, not just "make an API call and wait." Concurrent architecture across threads, processes, and parallel model calls. Local-first design for privacy and cost, with cloud inference used only where it adds real capability. Integration depth — audio, vision, browser automation, and OS-level control working as one coherent system rather than four separate demos glued together.',
+          'Real-time systems work under a hard latency budget, not just "make an API call and wait." Concurrent architecture across threads, processes, and parallel model calls. Local-first design for privacy and cost, with cloud inference used only where it adds real capability. Integration depth — audio, vision, browser automation, and OS-level control working as one coherent system rather than four separate demos glued together. And recognizing, from real usage, when a working architecture is still the wrong one — and re-architecting rather than patching around the symptom.',
         ],
       },
     ],
@@ -132,53 +132,48 @@ export const CASE_STUDIES: Record<string, CaseStudyData> = {
   aitradingagent: {
     slug: 'aitradingagent',
     title: 'AITradingAgent',
-    subtitle: 'Multi-Agent Algorithmic Trading System',
-    status: 'Active — trend-following strategy running in paper trading',
-    stack: ['Python', 'FastAPI', 'Redis', 'PostgreSQL / TimescaleDB', 'ccxt', 'Pydantic'],
-    repoLabel: 'Private repository — strategic deployment phase',
+    subtitle: 'Systematic Strategy Validation for CME Futures (NQ/MNQ)',
+    status: 'Active — strategy research phase, targeting a funded prop-firm evaluation',
+    stack: ['Python', 'FastAPI', 'Redis', 'PostgreSQL / TimescaleDB', 'Databento', 'Pydantic'],
+    repoLabel: 'Private repository — active research phase',
     sections: [
       {
         heading: 'The problem',
         paragraphs: [
-          'Most retail trading bots optimize for one thing: a backtest that shows a profitable equity curve — also the easiest number to accidentally overfit. AITradingAgent was built around the opposite priority, stated as a founding constraint before any strategy was written: profitability is a goal, not an assumption. Every strategy has to survive backtesting and paper trading before it is allowed near real capital, and every result has to clear a fixed statistical significance bar before it counts as evidence of anything.',
+          'Most retail trading systems optimize for one thing: a backtest that shows a profitable equity curve — also the easiest number to accidentally overfit. AITradingAgent was built around the opposite priority, stated as a founding constraint before any strategy was written: profitability is a goal, not an assumption. Every strategy has to clear a fixed statistical significance bar, survive an out-of-sample test split, and hold up under an outlier-removal check before it counts as evidence of anything — and every one of those checks is enforced the same way regardless of how many prior strategies have already failed them.',
         ],
       },
       {
         heading: 'Architecture',
         paragraphs: [
-          'The system is event-driven and cycle-based, not a single monolithic loop. Independent Python processes — market data collection, technical analysis, regime detection, decision engine, portfolio simulation — communicate through Redis pub/sub, with every intermediate decision written to PostgreSQL/TimescaleDB as an append-only audit trail. Nothing is inferred after the fact; every signal, regime read, and risk decision is logged at the moment it is made.',
+          'The system is event-driven and cycle-based, not a single monolithic loop. Independent Python processes — market data ingestion, technical analysis, regime detection, decision engine, portfolio simulation — communicate through Redis pub/sub, with every intermediate decision written to PostgreSQL/TimescaleDB as an append-only audit trail. Nothing is inferred after the fact; every signal, regime read, and risk decision is logged at the moment it is made.',
           'Pydantic validates every message crossing an agent boundary — malformed data is rejected outright rather than silently coerced into something the next stage can technically process.',
         ],
         diagram:
-          'Market Data (5min) -> TA Agent (15min) -> Regime Agent (30min)\n' +
-          '                                              |\n' +
-          '                                    Decision Engine (15min) -> Risk Agent\n' +
-          '                                              |\n' +
-          '                                    Portfolio Simulator (5min)',
+          'Market Data (Databento, 1min) -> TA Agent -> Regime Agent\n' +
+          '                                       |\n' +
+          '                             Decision Engine -> Risk / Compliance Engine\n' +
+          '                                       |\n' +
+          '                             Portfolio Simulator (Lucid MLL rules)',
       },
       {
         heading: 'Risk-first, by construction',
         paragraphs: [
-          'The system trades exclusively in dry-run until an explicit phase gate is cleared, with the exchange API key held read-only for the entire duration. Daily, weekly, and total drawdown limits reject trades automatically rather than flagging them for review. A sideways-regime detector disables trading outright rather than letting a strategy fight a market with no trend to follow. Position sizing is regime-adjusted, cut automatically under high volatility.',
-          'None of this is enforced by convention — it is structural. A strategy cannot reach live capital without passing through every one of these gates in order.',
+          'The system targets a live prop-firm evaluation (Lucid Trading), so every backtest runs through a purpose-built compliance engine that simulates the account\'s real trailing max-loss rules — end-of-day trailing, floor lock-in above the starting balance, consistency ratio — rather than a generic peak-drawdown metric. No overnight exposure is a structural constraint enforced by a dedicated session-calendar module, checked both as the primary trading gate and again as a redundant check immediately before any order — not a convention documented and hoped for.',
+          'A strategy cannot be considered viable without clearing every one of these gates, in order, on both a training and a held-out test period.',
         ],
       },
       {
-        heading: 'Current production strategy',
+        heading: 'Current research status',
         paragraphs: [
-          'Five symbols each run a differentiated trend-following configuration — different EMA/MACD parameters, ADX thresholds, and stop-loss/take-profit structures per symbol, tuned against each asset\'s own volatility profile rather than a single set of parameters applied uniformly across the watchlist. Signals trigger on crossover events, not persistent state, which avoids re-signaling on every cycle a condition happens to still hold true.',
-        ],
-      },
-      {
-        heading: 'Ongoing research',
-        paragraphs: [
-          'Beyond the production strategy, a parallel research track continuously backtests and refines alternative models — volatility-breakout and market-structure approaches among them — against a strict statistical significance threshold, iterating toward strategies that could eventually clear a funded-account evaluation.',
+          'Six strategies have been systematically tested and rejected across two tiers — opening-range breakout, VWAP mean reversion, gap fade, Donchian breakout, a cross-instrument pair trade, and RSI mean reversion — each judged independently against the same fixed bar: net profit factor above 1 on both sides of a chronological train/test split, a minimum trade-count threshold, and survival of the single best trade being removed from the sample. None has cleared it yet. Several failures pointed to genuine structural flaws (no per-trade stop-loss, prohibitive transaction costs from a mismatched instrument ratio); others failed by a narrow margin with results traced back to a single outsized month rather than a stable edge — a pattern that shows up consistently enough across independent strategies to be treated as a property of the sample, not of any one approach.',
+          'Rather than loosen the validation bar or move to increasingly speculative strategy families to force a pass, the project is currently extending its historical dataset from roughly one year to six years of 1-minute bars — covering the 2022 bear market, the 2023 recovery, and the 2024–2025 bull run — and re-testing the strategies with the strongest partial evidence at coarser bar intervals, with an added cross-regime robustness check to catch exactly the single-month dependency problem described above before it can pass as a false positive.',
         ],
       },
       {
         heading: 'What this project demonstrates',
         paragraphs: [
-          'Distributed, event-driven system design with a real audit trail, not just working code. Statistical discipline — treating "not enough data to conclude" as a different outcome from "this does not work," and refusing to call either one a result until the sample size actually supports it. A risk-management mindset applied to the software architecture itself, not bolted on as a business rule at the end.',
+          'Distributed, event-driven system design with a real audit trail, not just working code. Statistical discipline — treating "not enough data to conclude" as a different outcome from "this does not work," and refusing to call either one a result until the sample size actually supports it. A risk-management mindset applied to the software architecture itself, not bolted on as a business rule at the end. And a willingness to reject six consecutive strategies rather than lower the bar to produce a result — the kind of intellectual honesty that matters more in quantitative research than any single backtest ever will.',
         ],
       },
     ],
